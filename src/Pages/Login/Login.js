@@ -1,11 +1,20 @@
 import React, { useState } from "react";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const handleForgetPass = () => {
-        navigate("/forget-password", {replace: true});
+        navigate("/forget-password", { replace: true });
+    };
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const form = event.target;
+        if (form.password.value.length < 6) {
+            toast.error("Password length should be at least 6 characters");
+            return;
+        }
     };
     return (
         <div className="container-fluid">
@@ -14,7 +23,7 @@ const Login = () => {
                     <div className="loginCard d-flex justify-content-center align-items-center">
                         <div className="card p-2 w-25">
                             <div className="card-body">
-                                <form className="form">
+                                <form className="form" onSubmit={handleSubmit}>
                                     <div>
                                         <label htmlFor="email">Email</label>
                                         <div className="input-group">
@@ -25,6 +34,7 @@ const Login = () => {
                                                 type="email"
                                                 className="form-control"
                                                 placeholder="Enter your email"
+                                                name="email"
                                             />
                                         </div>
                                     </div>
@@ -45,6 +55,7 @@ const Login = () => {
                                                 className="form-control"
                                                 style={{ borderRight: "none" }}
                                                 placeholder="Enter your password"
+                                                name="password"
                                             />
                                             <span
                                                 className="input-group-text"
@@ -79,6 +90,19 @@ const Login = () => {
                                         </button>
                                     </div>
                                 </form>
+                                <div className="d-flex mt-3">
+                                    <hr className="w-50" />
+                                    <span className="ms-1 me-1">OR</span>
+                                    <hr className="w-50" />
+                                </div>
+                                <div>
+                                    <button
+                                        className="w-100 btn btn-outline-success"
+                                        onClick={() => navigate("/register")}
+                                    >
+                                        Sign up
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

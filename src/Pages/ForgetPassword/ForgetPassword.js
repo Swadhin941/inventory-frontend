@@ -1,20 +1,23 @@
 import React, { useState } from "react";
 import "./ForgetPassword.css";
-import {ClipLoader} from "react-spinners";
+import { ClipLoader } from "react-spinners";
 const ForgetPassword = () => {
-    const [showNewPass, setShowNewPass] = useState(true);
+    const [showNewPass, setShowNewPass] = useState(false);
     const [passVisibility, setPassVisibility] = useState(false);
-    const [isLoading, setIsLoading]= useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const handleFindEmailSubmit = (event) => {
         event.preventDefault();
         console.log(event.target.value, "event target value");
     };
 
-    const handlePassChngSubmit = (event)=>{
+    const handlePassChngSubmit = (event) => {
         event.preventDefault();
-        console.log(event.target.new_pass.value, event.target.confirm_new_pass.value);
+        console.log(
+            event.target.new_pass.value,
+            event.target.confirm_new_pass.value,
+        );
         setIsLoading(true);
-    }
+    };
     return (
         <div className="container-fluid">
             <div className="row">
@@ -68,6 +71,7 @@ const ForgetPassword = () => {
                                                     }
                                                     name="new_pass"
                                                     className="form-control"
+                                                    placeholder="Enter new password"
                                                 />
                                             </div>
                                         </div>
@@ -84,6 +88,7 @@ const ForgetPassword = () => {
                                                     }
                                                     name="confirm_new_pass"
                                                     className="form-control"
+                                                    placeholder="Confirm your password"
                                                 />
                                             </div>
                                         </div>
