@@ -5,6 +5,8 @@ import Home from "../Pages/Home/Home";
 import Login from "../Pages/Login/Login";
 import Register from "../Pages/Register/Register";
 import PageNotFound from "../Error/PageNotFound";
+import ForgetPassword from "../Pages/ForgetPassword/ForgetPassword";
+import Root from "../Layout/Root";
 export const Router = createBrowserRouter([
     {
         path: "/",
@@ -13,7 +15,7 @@ export const Router = createBrowserRouter([
         children: [
             {
                 path: "/",
-                element: <Home></Home>
+                element: <Home></Home>,
             },
             {
                 path: "/login",
@@ -22,6 +24,10 @@ export const Router = createBrowserRouter([
             {
                 path: "/register",
                 element: <Register></Register>
+            },
+            {
+                path: "/forget-password",
+                element: <ForgetPassword></ForgetPassword>
             }
         ]
         
