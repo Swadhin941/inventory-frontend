@@ -1,15 +1,46 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Register.css";
 import { ClipLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { registerApi } from "../../Services/slices/auth.slice";
+import toast from "react-hot-toast";
 
 const Register = () => {
-    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const { user, isRegisterLoading, error } = useSelector(
+        (state) => state.auth.auth,
+    );
+    const [isLoading, setIsLoading] = useState(false);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isRegisterLoading && isLoading && !error) {
+            navigate("/login");
+        }
+        setIsLoading(isRegisterLoading);
+    }, [isRegisterLoading]);
+
+    useEffect(()=>{
+        if(user){
+            navigate("/");
+        }
+    },[user])
+
     const handleSubmit = (event) => {
         event.preventDefault();
         const form = event.target;
-        setLoading(true);
+        if (form.password.value.length < 6) {
+            toast.error("Password should at least 6 character long");
+            return;
+        }
+        const payload = {
+            username: form.full_name.value,
+            email: form.email.value,
+            password: form.password.value,
+        };
+        dispatch(registerApi(payload));
     };
 
     const handleSignInNav = () => {
@@ -57,11 +88,29 @@ const Register = () => {
                                             <i className="bi bi-person"></i>
                                         </span>
                                         <input
-                                            type="password"
-                                            className="form-control"
+                                            type={
+                                                showPassword
+                                                    ? "text"
+                                                    : "password"
+                                            }
+                                            className="form-control border border-end-0"
                                             name="password"
                                             placeholder="Enter your password"
                                         />
+                                        <span
+                                            className="input-group-text"
+                                            style={{
+                                                backgroundColor: "#E8F0FE",
+                                                cursor: "pointer",
+                                            }}
+                                            onClick={() =>
+                                                setShowPassword(!showPassword)
+                                            }
+                                        >
+                                            <i
+                                                className={`bi ${showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"}`}
+                                            ></i>
+                                        </span>
                                     </div>
                                 </div>
                                 <div className="text-primary text-decoration-underline mt-2">
@@ -75,10 +124,12 @@ const Register = () => {
                                 <div className="mt-3">
                                     <button
                                         className="btn btn-outline-success w-100"
-                                        disabled={loading}
+                                        disabled={isRegisterLoading}
                                     >
                                         Sign up{" "}
-                                        {loading && <ClipLoader size={18} />}
+                                        {isRegisterLoading && (
+                                            <ClipLoader size={18} />
+                                        )}
                                     </button>
                                 </div>
                             </form>

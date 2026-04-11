@@ -1,20 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Login.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { loginApi } from "../../Services/slices/auth.slice";
+import { ClipLoader } from "react-spinners";
+
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { user, isLoginLoading } = useSelector((state) => state.auth.auth);
+    const location = useLocation();
+    const from = location.state?.from?.pathName || "/";
+
+    useEffect(() => {
+        if (user) {
+            navigate(from, { replace: true });
+        }
+    }, [user]);
+
     const handleForgetPass = () => {
         navigate("/forget-password", { replace: true });
     };
     const handleSubmit = (event) => {
         event.preventDefault();
         const form = event.target;
-        if (form.password.value.length < 6) {
+
+        if (form.password.value.trim().length < 6) {
             toast.error("Password length should be at least 6 characters");
             return;
         }
+
+        const payload = {
+            email: form.email.value,
+            password: form.password.value,
+        };
+        dispatch(loginApi(payload));
     };
     return (
         <div className="container-fluid">
@@ -85,8 +107,14 @@ const Login = () => {
                                         </small>
                                     </div>
                                     <div className="mt-3">
-                                        <button className="btn btn-outline-success w-100">
-                                            Sign in
+                                        <button
+                                            className="btn btn-outline-success w-100"
+                                            disabled={isLoginLoading}
+                                        >
+                                            Sign in{isLoginLoading}
+                                            {isLoginLoading && (
+                                                <ClipLoader size={18} />
+                                            )}
                                         </button>
                                     </div>
                                 </form>
