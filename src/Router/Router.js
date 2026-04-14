@@ -7,6 +7,7 @@ import Register from "../Pages/Register/Register";
 import PageNotFound from "../Error/PageNotFound";
 import ForgetPassword from "../Pages/ForgetPassword/ForgetPassword";
 import Root from "../Layout/Root";
+import User from "../Pages/Users/User";
 export const Router = createBrowserRouter([
     {
         path: "/",
@@ -32,6 +33,18 @@ export const Router = createBrowserRouter([
         ]
         
     },
+    {
+        path: "/dashboard",
+        element: <Root></Root>,
+        errorElement: <PageError></PageError>,
+        children: [
+            {
+                path: "/dashboard/user",
+                element: <User></User>
+            }
+        ]
+    },
+
     {
         path: "*",
         element: <PageNotFound></PageNotFound>
