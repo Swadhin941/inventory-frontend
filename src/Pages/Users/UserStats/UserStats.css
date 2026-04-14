@@ -1,3 +1,24 @@
-.card-text{
-    font-size: 1.5rem;
-}
+.stats-card {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: 0.2s ease;
+  }
+  
+  .stats-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Title */
+  .stats-title {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+  
+  /* Value */
+  .stats-value {
+    font-size: 22px;
+    font-weight: 600;
+  }

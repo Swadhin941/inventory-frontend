@@ -7,26 +7,45 @@ const UserStats = () => {
     
     const allDivs = [
         {
-            name: "Total User",
-            value: 0
-        }
-    ]
+            name: "Total Users",
+            value: 7,
+            color: "#111827",
+        },
+        {
+            name: "Active",
+            value: 6,
+            color: "#16a34a",
+        },
+        {
+            name: "Deactivated",
+            value: 1,
+            color: "#dc2626",
+        },
+        {
+            name: "Admins",
+            value: 1,
+            color: "#2563eb",
+        },
+    ];
 
     return (
         <div className="container-fluid">
-            <div className="row">
-                {allDivs.map((item, key) => (
-                    <div className="col-12 col-md-4 col-lg-3" key={key}>
-                        <div className="card">
-                            <div className="card-body">
-                                <h6>{item?.name}</h6>
-                                <p className='card-text'>{item.value}</p>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+    <div className="row">
+        {allDivs.map((item, key) => (
+            <div className="col-12 col-md-4 col-lg-3" key={key}>
+                <div className="stats-card">
+                    <h6 className="stats-title">{item.name}</h6>
+                    <p
+                        className="stats-value"
+                        style={{ color: item.color }}
+                    >
+                        {item.value}
+                    </p>
+                </div>
             </div>
-        </div>
+        ))}
+    </div>
+</div>
     );
 };
 

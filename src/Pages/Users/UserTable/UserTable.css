@@ -1,0 +1,136 @@
+.user-table-container {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  /* Header */
+  .user-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .header-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* Filters */
+  .filter-section {
+    margin-bottom: 16px;
+  }
+  
+  .filter-btn {
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: #f3f4f6;
+    cursor: pointer;
+  }
+  
+  .filter-btn.active {
+    background: #166534;
+    color: white;
+  }
+  
+  /* User cell */
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #1677ff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  
+  .user-name {
+    font-weight: 600;
+  }
+  
+  .user-subtitle {
+    font-size: 12px;
+    color: #888;
+  }
+  
+  /* Role tag */
+  .role-tag {
+    background: #eef2ff;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+  
+  /* Email */
+  .user-email {
+    color: #2563eb;
+  }
+  
+  /* Status */
+  .status-active {
+    color: #16a34a;
+    background: #dcfce7;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+  
+  .status-inactive {
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+  
+  /* Actions */
+  .action-group {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .action-btn {
+    border-radius: 6px;
+    padding: 4px 10px;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+  }
+  
+  .action-btn-danger {
+    border-radius: 6px;
+    padding: 4px 10px;
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    cursor: pointer;
+  }
+
+  .filter-section {
+    margin-bottom: 16px;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .filter-btn {
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: #f3f4f6;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .filter-btn.active {
+    background: #166534;
+    color: white;
+  }
