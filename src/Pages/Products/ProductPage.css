@@ -1,0 +1,26 @@
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  
+  .filter-btn {
+    border: none;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .filter-btn.active {
+    background: #166534;
+    color: white;
+  }
+  
+  .icon {
+    font-size: 14px;
+  }

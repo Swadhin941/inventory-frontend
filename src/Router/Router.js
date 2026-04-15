@@ -8,6 +8,7 @@ import PageNotFound from "../Error/PageNotFound";
 import ForgetPassword from "../Pages/ForgetPassword/ForgetPassword";
 import Root from "../Layout/Root";
 import User from "../Pages/Users/User";
+import ProductPage from "../Pages/Products/ProductPage";
 export const Router = createBrowserRouter([
     {
         path: "/",
@@ -41,6 +42,11 @@ export const Router = createBrowserRouter([
             {
                 path: "/dashboard/user",
                 element: <User></User>
+            },
+            {
+                path: "/dashboard/product",
+                element: <ProductPage></ProductPage>
+
             }
         ]
     },

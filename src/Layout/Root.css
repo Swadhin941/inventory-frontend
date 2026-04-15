@@ -2,23 +2,44 @@ body {
     background: #f5f5f5;
     font-family: "Segoe UI", sans-serif;
 }
-
+/* Brand container */
 .brand-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: #eaeaea;
-    width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
+/* Collapsed */
+.brand-card.collapsed {
+  justify-content: center;
+}
+
+/* Logo */
 .logo {
-    width: 30px;
-    height: 30px;
-    background: #1f6f3f;
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #166534;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Text */
+.brand-text h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.brand-text span {
+  font-size: 12px;
+  color: #9ca3af;
 }
 
 .logo span {
