@@ -8,6 +8,7 @@ import PageNotFound from "../Error/PageNotFound";
 import ForgetPassword from "../Pages/ForgetPassword/ForgetPassword";
 import Root from "../Layout/Root";
 import User from "../Pages/Users/User";
+import PrivateRouter from "../ProtectedRouter/PrivateRouter";
 export const Router = createBrowserRouter([
     {
         path: "/",
@@ -24,29 +25,32 @@ export const Router = createBrowserRouter([
             },
             {
                 path: "/register",
-                element: <Register></Register>
+                element: <Register></Register>,
             },
             {
                 path: "/forget-password",
-                element: <ForgetPassword></ForgetPassword>
-            }
-        ]
-        
+                element: <ForgetPassword></ForgetPassword>,
+            },
+        ],
     },
     {
         path: "/dashboard",
-        element: <Root></Root>,
+        element: (
+            <PrivateRouter>
+                <Root></Root>
+            </PrivateRouter>
+        ),
         errorElement: <PageError></PageError>,
         children: [
             {
                 path: "/dashboard/user",
-                element: <User></User>
-            }
-        ]
+                element: <User></User>,
+            },
+        ],
     },
 
     {
         path: "*",
-        element: <PageNotFound></PageNotFound>
-    }
+        element: <PageNotFound></PageNotFound>,
+    },
 ]);

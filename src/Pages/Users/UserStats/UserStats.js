@@ -6,13 +6,16 @@ import { Skeleton } from "antd";
 
 const UserStats = () => {
     const { statistics, isStatsLoading } = useSelector((state) => state.user);
+    const { user, isLoading } = useSelector((state) => state.auth.auth);
     const dispatch = useDispatch();
     useEffect(() => {
-        console.log(statistics, isStatsLoading);
-    }, [statistics, isStatsLoading]);
+        console.log(statistics, isStatsLoading, user);
+    }, [statistics, isStatsLoading, user]);
     useEffect(() => {
-        dispatch(fetchUserStatistics());
-    }, [dispatch]);
+        if (user) {
+            dispatch(fetchUserStatistics());
+        }
+    }, [dispatch, user, isLoading]);
     const allDivs = [
         {
             name: "Total Users",

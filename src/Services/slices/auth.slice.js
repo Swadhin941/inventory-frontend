@@ -111,7 +111,7 @@ const authSlice = createSlice({
             })
             .addCase(observerApi.fulfilled, (state, action) => {
                 state.auth.isLoading = false;
-                state.auth.user = action.payload;
+                state.auth.user = action.payload.body;
             })
             .addCase(observerApi.rejected, (state, action) => {
                 state.auth.isLoading = false;
