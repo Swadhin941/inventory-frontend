@@ -72,7 +72,7 @@ const userSlice = createSlice({
             .addCase(fetchUserStatistics.rejected, (state, action) => {
                 state.isStatsLoading = false;
                 state.statistics = null;
-                state.error = action.payload.message;
+                state.error = action.payload?.message || null;
             });
     },
 });

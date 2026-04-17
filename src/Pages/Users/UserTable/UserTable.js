@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import EditButton from "../../../Components/Buttons/EditButton";
 
 const UserTable = () => {
-  // ✅ Dummy Data
   const dummyUsers = [
     {
       _id: "1",
