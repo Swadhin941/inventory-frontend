@@ -8,6 +8,7 @@ import { getAllRolesApi } from "../../../Services/slices/auth.slice";
 import { hasFormSubmit } from "@testing-library/user-event/dist/utils";
 import {
     fetchAllUser,
+    fetchUserStatistics,
     updateUserInfoApi,
 } from "../../../Services/slices/user.slice";
 
@@ -42,7 +43,6 @@ const UserTable = () => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        console.log(users, "user list", isLoading);
         if (users.length !== 0) {
             let tempUsers = [];
             tempUsers = users.map((item) => ({
@@ -55,7 +55,6 @@ const UserTable = () => {
                 status: item.accountApproved,
             }));
             setUserList(tempUsers);
-            console.log(userList);
         }
         if (users.length === 0) {
             setUserList([]);
@@ -75,8 +74,8 @@ const UserTable = () => {
                     item.phone = updateUserData.contactNo;
                 }
             })
-
             setUserList(tempUsers);
+            dispatch(fetchUserStatistics());
         }
     }, [updateUserData, isUpdateUserLoading]);
 
