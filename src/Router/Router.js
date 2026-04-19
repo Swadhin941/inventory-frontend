@@ -9,6 +9,7 @@ import ForgetPassword from "../Pages/ForgetPassword/ForgetPassword";
 import Root from "../Layout/Root";
 import User from "../Pages/Users/User";
 import PrivateRouter from "../ProtectedRouter/PrivateRouter";
+import ProductPage from "../Pages/Products/ProductPage";
 export const Router = createBrowserRouter([
     {
         path: "/",
@@ -46,7 +47,13 @@ export const Router = createBrowserRouter([
                 path: "user",
                 element: <User></User>,
             },
-        ],
+            {
+                path: "product",
+                element: <ProductPage></ProductPage>
+
+            }
+        ]
+            
     },
 
     {

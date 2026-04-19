@@ -1,0 +1,140 @@
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-cancel {
+  border: 1px solid #d1d5db;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: white;
+}
+
+.btn-save {
+  background: #166534;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+}
+
+.form-card {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.ant-drawer-body {
+  background: #f5f5f5;
+}
+
+/* Drawer background */
+.ant-drawer-body {
+  background: #f5f5f5;
+}
+
+/* Card style */
+.form-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Section titles */
+.form-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Header */
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Buttons */
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-cancel {
+  border: 1px solid #d1d5db;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+
+.btn-save {
+  background: #166534;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Labels */
+.ant-form-item-label > label {
+  font-weight: 500;
+}
+
+.brand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.btn-add {
+  background: #1f7a3f;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.brand-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.brand-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f5f5f5;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.edit-btn {
+  margin-right: 8px;
+  color: #1677ff;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-btn {
+  color: red;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

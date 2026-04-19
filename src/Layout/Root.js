@@ -18,9 +18,8 @@ const Root = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const {
-        token: { colorBgContainer, borderRadiusLG },
+      token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
-
     const handleNavigationClick = (e) => {
         console.log(e);
         const findPath = pathDeclaration.find(
@@ -99,6 +98,6 @@ const Root = () => {
             </Layout>
         </Layout>
     );
-};
-
-export default Root;
+  };
+  
+  export default Root;
