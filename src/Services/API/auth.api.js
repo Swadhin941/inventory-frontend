@@ -31,3 +31,9 @@ export const observerApiService = async () => {
     const data = response.data;
     return data;
 };
+
+export const getAllRolesApiService = async()=>{
+    const response = await axiosSecure.get(`/auth/get-all-roles`);
+    const data = response.data;
+    return data;
+}

@@ -8,7 +8,7 @@ import {
 import { Button, Layout, Menu, theme } from "antd";
 import React, { useState } from "react";
 import "./Root.css";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { pathDeclaration } from "./Path";
 
 const { Header, Sider, Content } = Layout;
@@ -16,16 +16,18 @@ const { Header, Sider, Content } = Layout;
 const Root = () => {
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
-
+    const location = useLocation();
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
 
-    const handleNavigationClick = (e)=>{
+    const handleNavigationClick = (e) => {
         console.log(e);
-        const findPath = pathDeclaration.find(item=>item.key===e.key).path;
+        const findPath = pathDeclaration.find(
+            (item) => item.key === e.key,
+        ).path;
         navigate(findPath);
-    }
+    };
 
     return (
         <Layout style={{ minHeight: "100vh", background: "#fff" }}>
@@ -53,7 +55,7 @@ const Root = () => {
                 <Menu
                     theme="light"
                     mode="inline"
-                    defaultSelectedKeys={["1"]}
+                    defaultSelectedKeys={location.pathname}
                     onClick={(e) => handleNavigationClick(e)}
                     items={pathDeclaration.map((item) => item)}
                 />

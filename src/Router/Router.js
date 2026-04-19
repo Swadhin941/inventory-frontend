@@ -16,10 +16,6 @@ export const Router = createBrowserRouter([
         errorElement: <PageError></PageError>,
         children: [
             {
-                path: "/",
-                element: <Home></Home>,
-            },
-            {
                 path: "/login",
                 element: <Login></Login>,
             },
@@ -43,7 +39,11 @@ export const Router = createBrowserRouter([
         errorElement: <PageError></PageError>,
         children: [
             {
-                path: "/dashboard/user",
+                path: "",
+                element: <Home></Home>,
+            },
+            {
+                path: "user",
                 element: <User></User>,
             },
         ],

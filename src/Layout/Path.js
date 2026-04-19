@@ -9,15 +9,15 @@ import {
 import { lazy } from "react";
 export const pathDeclaration = [
     {
-        key: "1",
+        key: "/dashboard",
         icon: <DashboardOutlined />,
         label: "Dashboard",
         path: "/dashboard",
     },
     {
-        key: "2",
+        key: "/dashboard/user",
         icon: <UserOutlined />,
         label: "Users",
-        path: "/dashboard/user"
+        path: "/dashboard/user",
     },
 ];

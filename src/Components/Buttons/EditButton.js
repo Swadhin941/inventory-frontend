@@ -1,6 +1,6 @@
-const EditButton = ({ onClick }) => {
+const EditButton = ({ onClick, disabled }) => {
     return (
-      <button className="action-btn" onClick={onClick}>
+      <button className="action-btn" onClick={onClick} disabled={disabled}>
         Edit
       </button>
     );

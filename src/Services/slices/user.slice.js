@@ -1,5 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchAllUserApi, fetchAllUserStatistics } from "../API/user.api";
+import {
+    fetchAllUserApi,
+    fetchAllUserStatistics,
+    updateUserInfoApiService,
+} from "../API/user.api";
 import toast from "react-hot-toast";
 
 const initUserState = {
@@ -8,22 +12,45 @@ const initUserState = {
     error: null,
     statistics: null,
     isStatsLoading: false,
+    updateUserData: null,
+    isUpdateUserLoading: false
 };
 
 export const fetchAllUser = createAsyncThunk(
     "fetch-all-user",
-    async (payload) => {
-        console.log(payload, "from fetch user thunk");
-        const userData = await fetchAllUserApi(payload);
-        return userData;
+    async (payload, { rejectWithValue }) => {
+        try {
+            console.log(payload, "from fetch user thunk");
+            const userData = await fetchAllUserApi(payload);
+            return userData;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
     },
 );
 
 export const fetchUserStatistics = createAsyncThunk(
     "fetch-user-statistics",
-    async () => {
-        const userStats = await fetchAllUserStatistics();
-        return userStats;
+    async (_, { rejectWithValue }) => {
+        try {
+            const userStats = await fetchAllUserStatistics();
+            return userStats;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    },
+);
+
+// User info update api
+export const updateUserInfoApi = createAsyncThunk(
+    "update/user-info",
+    async (payload, { rejectWithValue }) => {
+        try {
+            const data = await updateUserInfoApiService(payload);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
     },
 );
 
@@ -39,8 +66,11 @@ const userSlice = createSlice({
             .addCase(fetchAllUser.fulfilled, (state, action) => {
                 if (action.payload.success) {
                     state.isLoading = false;
-                    
-                    state.users = [...state.users, ...action.payload.body.map(item=>item)];
+
+                    state.users = [
+                        ...state.users,
+                        ...action.payload.body.map((item) => item),
+                    ];
                 } else {
                     toast.error(action.payload.message);
                     state.error = action.payload.message;
@@ -73,7 +103,23 @@ const userSlice = createSlice({
                 state.isStatsLoading = false;
                 state.statistics = null;
                 state.error = action.payload?.message || null;
-            });
+            })
+
+            // Update user info reducer
+            .addCase(updateUserInfoApi.pending, (state, action)=>{
+                state.isUpdateUserLoading= true;
+                state.updateUserData = null;
+            })
+            .addCase(updateUserInfoApi.fulfilled, (state, action)=>{
+                toast.success(action.payload.message);
+                state.isUpdateUserLoading= false;
+                state.updateUserData = action.payload.body;
+            })
+            .addCase(updateUserInfoApi.rejected, (state, action)=>{
+                state.isUpdateUserLoading= false;
+                state.updateUserData = null;
+                state.error = action.payload?.message || null;
+            })
     },
 });
 
