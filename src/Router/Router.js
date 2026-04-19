@@ -8,6 +8,7 @@ import PageNotFound from "../Error/PageNotFound";
 import ForgetPassword from "../Pages/ForgetPassword/ForgetPassword";
 import Root from "../Layout/Root";
 import User from "../Pages/Users/User";
+import PrivateRouter from "../ProtectedRouter/PrivateRouter";
 import ProductPage from "../Pages/Products/ProductPage";
 export const Router = createBrowserRouter([
     {
@@ -16,43 +17,47 @@ export const Router = createBrowserRouter([
         errorElement: <PageError></PageError>,
         children: [
             {
-                path: "/",
-                element: <Home></Home>,
-            },
-            {
                 path: "/login",
                 element: <Login></Login>,
             },
             {
                 path: "/register",
-                element: <Register></Register>
+                element: <Register></Register>,
             },
             {
                 path: "/forget-password",
-                element: <ForgetPassword></ForgetPassword>
-            }
-        ]
-        
+                element: <ForgetPassword></ForgetPassword>,
+            },
+        ],
     },
     {
         path: "/dashboard",
-        element: <Root></Root>,
+        element: (
+            <PrivateRouter>
+                <Root></Root>
+            </PrivateRouter>
+        ),
         errorElement: <PageError></PageError>,
         children: [
             {
-                path: "/dashboard/user",
-                element: <User></User>
+                path: "",
+                element: <Home></Home>,
             },
             {
-                path: "/dashboard/product",
+                path: "user",
+                element: <User></User>,
+            },
+            {
+                path: "product",
                 element: <ProductPage></ProductPage>
 
             }
         ]
+            
     },
 
     {
         path: "*",
-        element: <PageNotFound></PageNotFound>
-    }
+        element: <PageNotFound></PageNotFound>,
+    },
 ]);

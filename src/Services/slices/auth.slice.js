@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
+    getAllRolesApiService,
     loginApiService,
     observerApiService,
     registerApiService,
@@ -42,6 +43,18 @@ export const observerApi = createAsyncThunk(
     },
 );
 
+export const getAllRolesApi = createAsyncThunk(
+    "fetch/roles",
+    async (_, { rejectWithValue }) => {
+        try {
+            const data = await getAllRolesApiService();
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    },
+);
+
 const initAuthState = {
     auth: {
         user: null,
@@ -49,6 +62,8 @@ const initAuthState = {
         error: null,
         isRegisterLoading: false,
         isLoginLoading: false,
+        roles: [],
+        isRolesLoading: false,
     },
 };
 
@@ -67,13 +82,13 @@ const authSlice = createSlice({
                 if (action.payload.success) {
                     state.auth.user = action.payload.body;
                     state.auth.isLoginLoading = false;
-                    state.auth.error= null;
-                    localStorage.setItem("token", action.payload.token)
+                    state.auth.error = null;
+                    localStorage.setItem("token", action.payload.token);
                 } else {
                     toast.error(action.payload.message);
                     state.auth.isLoginLoading = false;
                     state.auth.user = null;
-                    state.auth.error= action.payload.message;
+                    state.auth.error = action.payload.message;
                 }
             })
             .addCase(loginApi.rejected, (state, action) => {
@@ -81,7 +96,7 @@ const authSlice = createSlice({
                 toast.error(action.payload.message);
                 state.auth.isLoginLoading = false;
                 state.auth.user = null;
-                state.auth.error= action.payload;
+                state.auth.error = action.payload;
             })
 
             //Register api actions
@@ -92,11 +107,11 @@ const authSlice = createSlice({
                 if (action.payload.success) {
                     toast.success(action.payload.message);
                     state.auth.isRegisterLoading = false;
-                    state.auth.error= null;
+                    state.auth.error = null;
                 } else {
                     toast.error(action.payload.message);
                     state.auth.isRegisterLoading = false;
-                    state.auth.error= action.payload.message;
+                    state.auth.error = action.payload.message;
                 }
             })
             .addCase(registerApi.rejected, (state, action) => {
@@ -110,12 +125,33 @@ const authSlice = createSlice({
                 state.auth.user = null;
             })
             .addCase(observerApi.fulfilled, (state, action) => {
-                state.auth.isLoading = false;
-                state.auth.user = action.payload;
+                if (action.payload.success) {
+                    state.auth.isLoading = false;
+                    state.auth.user = action.payload.body;
+                }
+                else{
+                    state.auth.isLoading = false;
+                    state.auth.user = null;
+                    toast.error(action.payload.message);
+                }
             })
             .addCase(observerApi.rejected, (state, action) => {
                 state.auth.isLoading = false;
                 state.auth.user = null;
+            })
+
+            //get all roles reducers
+            .addCase(getAllRolesApi.pending, (state, action) => {
+                state.auth.isRolesLoading = true;
+                state.auth.roles = [];
+            })
+            .addCase(getAllRolesApi.fulfilled, (state, action) => {
+                state.auth.isRolesLoading = false;
+                state.auth.roles = action.payload.body;
+            })
+            .addCase(getAllRolesApi.rejected, (state, action) => {
+                state.auth.isRolesLoading = false;
+                state.auth.roles = [];
             });
     },
 });
