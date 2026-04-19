@@ -1,24 +1,24 @@
-import { Form, Input, Row, Col, Select, Modal, message, Button, Switch } from "antd";
+import { Form, Input, Row, Col, Select, Modal, message, Switch } from "antd";
 import React, { useEffect, useState } from "react";
 import "./ProductForm.css";
 import QrScanner from "../../../Components/QrScanner/QrScanner";
-import { CameraOutlined } from "@ant-design/icons";
+import BrandDrawer from "../../../Components/BrandDrawer/BrandDrawer";
+import ModelDrawer from "../../../Components/ModelDrawer/ModelDrawer";
 
 const ProductForm = ({ product, onClose }) => {
   const [form] = Form.useForm();
 
+  const selectedBrand = Form.useWatch("brand", form);
+
   const [scanOpen, setScanOpen] = useState(false);
   const [loadingScan, setLoadingScan] = useState(false);
-  const handleCloseScanner = () => {
-    setScanOpen(false);
-  };
 
-  const playBeep = () => {
-    const audio = new Audio(
-      "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
-    );
-    audio.play();
-  };
+  const [brandDrawerOpen, setBrandDrawerOpen] = useState(false);
+  const [editingBrand, setEditingBrand] = useState(null);
+
+  // const [models, setModels] = useState([]);
+  const [modelDrawerOpen, setModelDrawerOpen] = useState(false);
+  const [editingModel, setEditingModel] = useState(null);
 
   // ✅ Brand state
   const [brands, setBrands] = useState([
@@ -28,6 +28,21 @@ const ProductForm = ({ product, onClose }) => {
     "Google",
     "OnePlus",
   ]);
+
+  // ✅ Model state (linked to brand)
+  const [models, setModels] = useState([]);
+  // [{ name: "iPhone 14", brand: "Apple" }]
+
+  const playBeep = () => {
+    const audio = new Audio(
+      "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+    );
+    audio.play();
+  };
+
+  const handleCloseScanner = () => {
+    setScanOpen(false);
+  };
 
   // ✅ HANDLE SCAN (IMPROVED)
   const handleScan = async (barcode) => {
@@ -118,17 +133,107 @@ const ProductForm = ({ product, onClose }) => {
   }, [product, form]);
 
   // ✅ Add brand
-  const addBrand = () => {
-    const newBrand = prompt("Enter new brand");
-    if (newBrand && !brands.includes(newBrand)) {
-      setBrands([...brands, newBrand]);
+  const openBrandDrawer = () => {
+    setEditingBrand(null); // important
+    setBrandDrawerOpen(true);
+  };
+
+  const handleAddBrand = (brand) => {
+    const exists = brands.some((b) => b.toLowerCase() === brand.toLowerCase());
+
+    if (!exists) {
+      setBrands((prev) => [...prev, brand]);
+
+      // ✅ auto select brand
+      form.setFieldsValue({ brand });
+
+      // ✅ close brand drawer
+      setBrandDrawerOpen(false);
+
+      // ✅ open model drawer automatically
+      setTimeout(() => {
+        setModelDrawerOpen(true);
+      }, 300);
+    } else {
+      message.warning("Brand already exists ⚠️");
     }
+  };
+  // ✅ Edit brand
+  const handleEditBrand = (brand) => {
+    setEditingBrand(brand);
+    setBrandDrawerOpen(true);
+  };
+
+  const handleUpdateBrand = (updatedBrand) => {
+    const clean = updatedBrand.trim();
+
+    setBrands((prev) => prev.map((b) => (b === editingBrand ? clean : b)));
+
+    form.setFieldsValue({ brand: clean });
+    setEditingBrand(null);
   };
 
   // ✅ Delete brand
   const deleteBrand = (brand) => {
     setBrands(brands.filter((b) => b !== brand));
   };
+
+  // Open model add
+  const openModelDrawer = () => {
+    setEditingModel(null);
+    setModelDrawerOpen(true);
+  };
+
+  const handleAddModel = (modelName, brand) => {
+    const exists = models.some(
+      (m) =>
+        m.name.toLowerCase() === modelName.toLowerCase() &&
+        m.brand === brand
+    );
+  
+    if (!exists) {
+      setModels((prev) => [...prev, { name: modelName, brand }]);
+  
+      form.setFieldsValue({
+        model: modelName,
+        brand: brand,
+      });
+    } else {
+      message.warning("Model exists ⚠️");
+    }
+  };
+
+  const handleEditModel = (model) => {
+    setEditingModel(model);
+    setModelDrawerOpen(true);
+  };
+
+  const handleUpdateModel = (updated, brand) => {
+    const clean = updated.trim();
+  
+    setModels((prev) =>
+      prev.map((m) =>
+        m.name === editingModel
+          ? { ...m, name: clean, brand }
+          : m
+      )
+    );
+  
+    form.setFieldsValue({
+      model: clean,
+      brand: brand,
+    });
+  
+    setEditingModel(null);
+  };
+
+  const deleteModel = (model) => {
+    setModels(
+      models.filter((m) => !(m.name === model && m.brand === selectedBrand))
+    );
+  };
+
+  const filteredModels = models.filter((m) => m.brand === selectedBrand);
 
   return (
     <>
@@ -163,44 +268,66 @@ const ProductForm = ({ product, onClose }) => {
                 <Input />
               </Form.Item>
 
+              <Form.Item name="sku" label="SKU / Model">
+                <Input placeholder="Enter SKU" />
+              </Form.Item>
+
               <Row gutter={10}>
                 <Col span={12}>
-                  <Form.Item name="sku" label="SKU / Model">
-                    <Input
-                      placeholder="Enter or scan SKU"
-                      addonAfter={
-                        <Button
-                          type="text"
-                          icon={<CameraOutlined />}
-                          onClick={() => setScanOpen(true)}
-                        />
-                      }
+                  <Form.Item name="brand" label="Brand">
+                    <Select
+                      options={brands.map((b) => ({
+                        label: b,
+                        value: b,
+                      }))}
+                      onChange={() => form.setFieldsValue({ model: null })}
                     />
                   </Form.Item>
                 </Col>
 
                 <Col span={12}>
                   <Form.Item name="model" label="Model">
-                    <Input />
+                    <Select
+                      options={filteredModels.map((m) => ({
+                        label: m.name,
+                        value: m.name,
+                      }))}
+                      disabled={!selectedBrand}
+                    />
                   </Form.Item>
                 </Col>
               </Row>
-
-              <Form.Item name="brand" label="Brand">
-                <Select
-                  options={brands.map((b) => ({
-                    label: b,
-                    value: b,
-                  }))}
-                />
-              </Form.Item>
 
               <Form.Item name="description" label="Description">
                 <Input.TextArea rows={3} />
               </Form.Item>
             </div>
 
-            <div className="form-card"> <h3>Discount Settings</h3> <Form.Item name="discount" label="Available for Discount" valuePropName="checked" > <Switch /> </Form.Item> </div>
+            <div className="form-card">
+              {" "}
+              <h3>Pricing & Margin</h3>{" "}
+              <Row gutter={10}>
+                <Col span={12}>
+                  <Form.Item name="cost" label="Cost Price (Purchase Price) *">
+                    <Input />
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item name="price" label="Selling Price *">
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Form.Item
+                name="discount"
+                label="Available for Discount"
+                valuePropName="checked"
+              >
+                {" "}
+                <Switch />{" "}
+              </Form.Item>{" "}
+            </div>
           </Col>
 
           {/* RIGHT */}
@@ -222,7 +349,7 @@ const ProductForm = ({ product, onClose }) => {
               <div className="brand-header">
                 <h3>Brand Management</h3>
 
-                <button className="btn-add" onClick={addBrand}>
+                <button className="btn-add" onClick={openBrandDrawer}>
                   + Add Brand
                 </button>
               </div>
@@ -233,8 +360,12 @@ const ProductForm = ({ product, onClose }) => {
                     <span>{brand}</span>
 
                     <div>
-                      <button className="edit-btn">Edit</button>
-
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEditBrand(brand)}
+                      >
+                        Edit
+                      </button>
                       <button
                         className="delete-btn"
                         onClick={() => deleteBrand(brand)}
@@ -244,6 +375,44 @@ const ProductForm = ({ product, onClose }) => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+            <div className="form-card">
+              <div className="brand-header">
+                <h3>Model Management</h3>
+
+                <button
+  className="btn-add"
+  onClick={openModelDrawer}
+>
+  + Add Model
+</button>
+              </div>
+
+              <div className="brand-list">
+                {models
+                  .filter((m) => m.brand === selectedBrand)
+                  .map((model) => (
+                    <div key={model.name} className="brand-item">
+                      <span>{model.name}</span>
+
+                      <div>
+                        <button
+                          className="edit-btn"
+                          onClick={() => handleEditModel(model.name)}
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="delete-btn"
+                          onClick={() => deleteModel(model.name)}
+                        >
+                          Del
+                        </button>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
           </Col>
@@ -263,6 +432,31 @@ const ProductForm = ({ product, onClose }) => {
           <QrScanner onScan={handleScan} />
         )}
       </Modal>
+
+      {/* ✅ Brand Drawer */}
+      <BrandDrawer
+        open={brandDrawerOpen}
+        onClose={() => {
+          setBrandDrawerOpen(false);
+          setEditingBrand(null);
+        }}
+        onAdd={handleAddBrand}
+        onUpdate={handleUpdateBrand}
+        editingBrand={editingBrand}
+      />
+
+<ModelDrawer
+  open={modelDrawerOpen}
+  onClose={() => {
+    setModelDrawerOpen(false);
+    setEditingModel(null);
+  }}
+  onAdd={handleAddModel}
+  onUpdate={handleUpdateModel}
+  editingModel={editingModel}
+  brands={brands}              // ✅ pass brands
+  selectedBrand={selectedBrand} // ✅ pass current brand
+/>
     </>
   );
 };
