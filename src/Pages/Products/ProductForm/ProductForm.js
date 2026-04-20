@@ -1,7 +1,6 @@
 import { Form, Input, Row, Col, Select, Modal, message, Switch } from "antd";
 import React, { useEffect, useState } from "react";
 import "./ProductForm.css";
-import QrScanner from "../../../Components/QrScanner/QrScanner";
 import BrandDrawer from "../../../Components/BrandDrawer/BrandDrawer";
 import ModelDrawer from "../../../Components/ModelDrawer/ModelDrawer";
 
@@ -381,7 +380,7 @@ const ProductForm = ({ product, onClose }) => {
               <div className="brand-header">
                 <h3>Model Management</h3>
 
-                <button
+                <button type="button"
   className="btn-add"
   onClick={openModelDrawer}
 >
@@ -418,20 +417,6 @@ const ProductForm = ({ product, onClose }) => {
           </Col>
         </Row>
       </Form>
-
-      {/* ✅ Scanner Modal */}
-      <Modal
-        open={scanOpen}
-        onCancel={handleCloseScanner}
-        footer={null}
-        title="Scan QR / Barcode"
-      >
-        {loadingScan ? (
-          <p>Fetching product...</p>
-        ) : (
-          <QrScanner onScan={handleScan} />
-        )}
-      </Modal>
 
       {/* ✅ Brand Drawer */}
       <BrandDrawer

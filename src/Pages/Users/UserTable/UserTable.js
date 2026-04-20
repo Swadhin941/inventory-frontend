@@ -82,21 +82,19 @@ const UserTable = () => {
     useEffect(() => {
         if (user && roles.length === 0) {
             dispatch(getAllRolesApi());
-            if (!isLoading) {
-                dispatch(
-                    fetchAllUser({
-                        search: activeFilter,
-                        page: page,
-                        limit: limit,
-                    }),
-                );
-            }
         }
     }, [user, isLoading]);
 
     useEffect(() => {
         if (roles.length !== 0) {
             setRoleList(["All", ...roles]);
+            dispatch(
+                fetchAllUser({
+                    search: activeFilter,
+                    page: page,
+                    limit: limit,
+                }),
+            );
         }
     }, [roles]);
 
