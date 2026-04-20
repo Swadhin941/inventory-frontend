@@ -1,0 +1,21 @@
+.sales-card {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.sales-card h6 {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.sales-card h3 {
+    margin: 6px 0;
+    font-weight: 600;
+}
+
+.growth {
+    color: #16a34a;
+    font-size: 12px;
+}

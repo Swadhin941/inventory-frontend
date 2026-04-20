@@ -1,0 +1,21 @@
+.col-lg-4 {
+    position: sticky;
+    top: 10px;
+}
+
+.product-card {
+    border-radius: 12px;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    border-color: #166534;
+    transform: translateY(-2px);
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}

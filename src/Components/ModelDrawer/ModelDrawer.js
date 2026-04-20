@@ -7,8 +7,8 @@ const ModelDrawer = ({
   onAdd,
   onUpdate,
   editingModel,
-  brands,           // ✅ receive brands list
-  selectedBrand,    // ✅ receive selected brand
+  brands, // ✅ receive brands list
+  selectedBrand, // ✅ receive selected brand
 }) => {
   const [modelName, setModelName] = useState("");
   const [selected, setSelected] = useState(""); // ✅ FIX name conflict
@@ -53,10 +53,16 @@ const ModelDrawer = ({
     <Drawer
       title={editingModel ? "Edit Model" : "Add Model"}
       open={open}
-      onClose={onClose}
+      onClose={() => {}}
+      maskClosable={false}
+      keyboard={false}
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        
+        {/* Close Button */}
+        <div style={{ textAlign: "right" }}>
+          <Button onClick={onClose}>Close</Button>
+        </div>
+
         {/* ✅ BRAND SELECT */}
         <Select
           placeholder="Select Brand"
