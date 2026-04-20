@@ -10,6 +10,8 @@ import Root from "../Layout/Root";
 import User from "../Pages/Users/User";
 import PrivateRouter from "../ProtectedRouter/PrivateRouter";
 import ProductPage from "../Pages/Products/ProductPage";
+import SalesPage from "../Pages/SalesPage/SalesPage";
+import SalesHistory from "../Pages/SalesHistory/SalesHistory";
 export const Router = createBrowserRouter([
     {
         path: "/",
@@ -51,7 +53,16 @@ export const Router = createBrowserRouter([
                 path: "product",
                 element: <ProductPage></ProductPage>
 
+            },
+            {
+                path: "sales",
+                element: <SalesPage></SalesPage>
+            },
+            {
+                path: "sales-history",
+                element: <SalesHistory></SalesHistory>
             }
+           
         ]
             
     },

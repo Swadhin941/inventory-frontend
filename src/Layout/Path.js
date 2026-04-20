@@ -24,4 +24,16 @@ import {
           label: "Products",
           path: "/dashboard/product",
       },
+      {
+        key: "/dashboard/sales",
+        icon: <DashboardOutlined />,
+        label: "New Sales",
+        path: "/dashboard/sales",
+      },
+      {
+        key: "/dashboard/sales-history",
+        icon: <DashboardOutlined />,
+        label: "Sales History",
+        path: "/dashboard/sales-history",
+      }
   ];
