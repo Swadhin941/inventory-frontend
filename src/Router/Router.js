@@ -16,7 +16,7 @@ export const Router = createBrowserRouter([
     {
         path: "/",
         element: <Main></Main>,
-        errorElement: <PageError></PageError>,
+        // errorElement: <PageError></PageError>,
         children: [
             {
                 path: "/",
@@ -44,7 +44,7 @@ export const Router = createBrowserRouter([
                 <Root></Root>
             </PrivateRouter>
         ),
-        errorElement: <PageError></PageError>,
+        // errorElement: <PageError></PageError>,
         children: [
             {
                 path: "",
