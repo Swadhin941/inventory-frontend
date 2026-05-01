@@ -21,8 +21,13 @@ export const addBrandApi = createAsyncThunk(
     async (payload, { rejectWithValue }) => {
         try {
             const response = await addBrandApiService(payload);
+            if (!response.success) {
+                return rejectWithValue(response);
+            }
             return response;
         } catch (error) {
+            console.log(error);
+            toast.error(error.message);
             return rejectWithValue(error.message);
         }
     },
@@ -55,14 +60,14 @@ export const updateBrandApi = createAsyncThunk(
 export const deleteBrandApi = createAsyncThunk(
     "delete/brand",
     async (payload, { rejectWithValue }) => {
-        try{
+        try {
             const response = await deleteBrandApiService(payload);
             return response;
-        }
-        catch(error){
+        } catch (error) {
             return rejectWithValue(error.message);
         }
-    })
+    },
+);
 
 const brandSlice = createSlice({
     name: "brand",
@@ -80,11 +85,6 @@ const brandSlice = createSlice({
                     state.isBrandLoading = false;
                     state.brands = action.payload.body;
                     state.totalBrandCount = action.payload.totalCount;
-                } else {
-                    toast.error(action.payload.message);
-                    state.error = action.payload.message;
-                    state.isBrandLoading = false;
-                    state.brands = [];
                 }
             })
             .addCase(getAllBrandApi.rejected, (state, action) => {
@@ -103,14 +103,11 @@ const brandSlice = createSlice({
                     state.addBrandLoading = false;
                     state.addBrand = action.payload.body;
                     state.totalBrandCount += 1;
-                } else {
-                    toast.error(action.payload.message);
-                    state.error = action.payload.message;
-                    state.addBrandLoading = false;
-                    state.addBrand = null;
+                    toast.success(action.payload.message);
                 }
             })
             .addCase(addBrandApi.rejected, (state, action) => {
+                toast.error(action.payload.message);
                 state.error = action.payload;
                 state.addBrandLoading = false;
                 state.addBrand = null;

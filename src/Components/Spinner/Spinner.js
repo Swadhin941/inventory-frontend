@@ -3,9 +3,8 @@ import { ClockLoader } from 'react-spinners';
 
 const Spinner = () => {
     return (
-        <div className="container-fluid">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
+        <div className="d-flex">
+            <div class="spinner-border spinner-border-sm" role="status">
             </div>
         </div>
     );
