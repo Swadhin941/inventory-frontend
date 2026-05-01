@@ -13,6 +13,8 @@ const initBrandState = {
     error: null,
     addBrand: null,
     addBrandLoading: false,
+    updateBrand: null,
+    updateBrandLoading: false,
     totalBrandCount: 0,
 };
 
@@ -50,6 +52,9 @@ export const updateBrandApi = createAsyncThunk(
     async (payload, { rejectWithValue }) => {
         try {
             const response = await updateBrandApiService(payload);
+            if(!response.success){
+                return rejectWithValue(response);
+            }
             return response;
         } catch (error) {
             return rejectWithValue(error.message);
@@ -111,7 +116,27 @@ const brandSlice = createSlice({
                 state.error = action.payload;
                 state.addBrandLoading = false;
                 state.addBrand = null;
-            });
+            })
+            // Update brand reducers
+            .addCase(updateBrandApi.pending, (state, action)=>{
+                state.updateBrandLoading = true;
+                state.updateBrand = null;
+            })
+
+            .addCase(updateBrandApi.fulfilled, (state, action)=>{
+                if(action.payload.success){
+                    state.updateBrandLoading = false;
+                    state.updateBrand = action.payload.body;
+                    toast.success(action.payload.message);
+                }
+            })
+
+            .addCase(updateBrandApi.rejected, (state, action)=>{
+                toast.error(action.payload.message);
+                state.error = action.payload;
+                state.updateBrandLoading = false;
+                state.updateBrand = null;
+            })
     },
 });
 
