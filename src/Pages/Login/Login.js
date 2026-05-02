@@ -49,7 +49,7 @@ const Login = () => {
                 ) : (
                     <div className="col-sm-12 col-md-12 col-lg-12">
                         <div className="loginCard d-flex justify-content-center align-items-center">
-                            <div className="card p-2 w-25">
+                            <div className="card p-2">
                                 <div className="card-body">
                                     <form
                                         className="form"

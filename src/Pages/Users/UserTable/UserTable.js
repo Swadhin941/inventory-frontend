@@ -158,6 +158,7 @@ const UserTable = () => {
     const columns = [
         {
             title: "USER",
+            width: 220,
             render: (_, record) => (
                 <div className="user-cell">
                     <div className="avatar">
@@ -178,6 +179,7 @@ const UserTable = () => {
         {
             title: "ROLE",
             dataIndex: "role",
+            responsive: ["sm"],
             render: (role) => (
                 <span className={`role-tag ${role.toLowerCase()}`}>{role}</span>
             ),
@@ -186,12 +188,14 @@ const UserTable = () => {
         {
             title: "EMAIL",
             dataIndex: "email",
+            responsive: ["md"],
             render: (email) => <a className="user-email">{email}</a>,
         },
 
         {
             title: "PHONE",
             dataIndex: "phone",
+            responsive: ["lg"],
         },
 
         // {
@@ -208,6 +212,7 @@ const UserTable = () => {
         {
             title: "STATUS",
             dataIndex: "status",
+            width: 110,
             render: (status) => (
                 <span className={status ? "status-active" : "status-inactive"}>
                     ● {status ? "Active" : "Inactive"}
@@ -217,6 +222,7 @@ const UserTable = () => {
 
         {
             title: "ACTIONS",
+            width: 150,
             render: (_, record) => (
                 <div className="action-group">
                     <EditButton
@@ -279,11 +285,24 @@ const UserTable = () => {
             ) : userList.length === 0 ? (
                 <Empty />
             ) : (
-                <Table columns={columns} dataSource={userList} rowKey="_id" />
+                <Table
+                    className="user-table"
+                    columns={columns}
+                    dataSource={userList}
+                    rowKey="_id"
+                    pagination={{ responsive: true }}
+                    scroll={{ x: "max-content" }}
+                />
             )}
 
             {/* Drawer */}
-            <Drawer title="Edit User" width={400} onClose={onClose} open={open}>
+            <Drawer
+                title="Edit User"
+                width={400}
+                onClose={onClose}
+                open={open}
+                rootClassName="user-drawer"
+            >
                 <Form layout="vertical" form={form} onFinish={onFinish}>
                     <Form.Item name="user_name" label="User Name">
                         <Input />

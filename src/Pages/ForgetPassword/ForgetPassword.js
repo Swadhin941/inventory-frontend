@@ -24,7 +24,7 @@ const ForgetPassword = () => {
                 <div className="col-12 col-sm-12 col-md-12 col-lg-12">
                     <div className="forgetPassword d-flex justify-content-center align-items-center">
                         {!showNewPass ? (
-                            <div className="card w-25 p-3">
+                            <div className="card p-3">
                                 <div className="card-body">
                                     <h4 className="text-center mb-3">
                                         Find your account
@@ -52,7 +52,7 @@ const ForgetPassword = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="card w-25 p-3">
+                            <div className="card p-3">
                                 <div className="card-body">
                                     <h4 className="mb-3 text-center">
                                         Set new password

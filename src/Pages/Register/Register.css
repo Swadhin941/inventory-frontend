@@ -1,3 +1,45 @@
-.registerCard{
-    height: 100vh;
+.registerCard {
+    min-height: 100vh;
+    padding: 24px 12px;
+}
+
+.registerCard .card {
+    width: min(100%, 440px) !important;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.registerCard .card-body {
+    padding: 24px;
+}
+
+.registerCard .input-group-text,
+.registerCard .form-control,
+.registerCard .btn {
+    min-height: 42px;
+}
+
+.registerCard .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+@media (max-width: 575px) {
+    .registerCard {
+        align-items: flex-start !important;
+        padding: 40px 12px 24px;
+    }
+
+    .registerCard .card-body {
+        padding: 16px;
+    }
+
+    .registerCard .input-group-text,
+    .registerCard .form-control,
+    .registerCard .btn {
+        min-height: 44px;
+    }
 }

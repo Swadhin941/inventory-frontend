@@ -4,4 +4,11 @@
     margin-bottom: 12px;
     border-radius: 10px;
     border: 1px solid #ddd;
+    min-height: 42px;
+}
+
+@media (max-width: 575px) {
+    .search-input {
+        min-height: 44px;
+    }
 }

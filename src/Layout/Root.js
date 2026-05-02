@@ -5,7 +5,7 @@ import {
     UserOutlined,
     VideoCameraOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme } from "antd";
+import { Button, Layout, Menu } from "antd";
 import React, { useState } from "react";
 import "./Root.css";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -17,9 +17,6 @@ const Root = () => {
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const {
-        token: { colorBgContainer, borderRadiusLG },
-    } = theme.useToken();
     const handleNavigationClick = (e) => {
         console.log(e);
         const findPath = pathDeclaration.find(
@@ -29,12 +26,15 @@ const Root = () => {
     };
 
     return (
-        <Layout style={{ minHeight: "100vh", background: "#fff" }}>
+        <Layout className="app-layout">
             <Sider
+                className="app-sidebar"
                 trigger={null}
                 collapsible
                 collapsed={collapsed}
-                style={{ background: "#fff" }}
+                breakpoint="lg"
+                collapsedWidth={80}
+                onBreakpoint={(broken) => setCollapsed(broken)}
             >
                 <div className={`brand-card ${collapsed ? "collapsed" : ""}`}>
                     <div className="logo">
@@ -42,11 +42,9 @@ const Root = () => {
                     </div>
 
                     {!collapsed && (
-                        <div className="text">
-                            <h1>
-                                QuddusShop{" "}
-                                <span className="location">Doha, Qatar</span>
-                            </h1>
+                        <div className="brand-text">
+                            <h1>QuddusShop</h1>
+                            <span className="location">Doha, Qatar</span>
                         </div>
                     )}
                 </div>
@@ -59,13 +57,8 @@ const Root = () => {
                     items={pathDeclaration.map((item) => item)}
                 />
             </Sider>
-            <Layout>
-                <Header
-                    style={{
-                        padding: 0,
-                        background: colorBgContainer,
-                    }}
-                >
+            <Layout className="app-main">
+                <Header className="app-header">
                     <Button
                         type="text"
                         icon={
@@ -84,15 +77,7 @@ const Root = () => {
                     />
                 </Header>
 
-                <Content
-                    style={{
-                        margin: "24px 16px",
-                        padding: 24,
-                        background: colorBgContainer,
-                        borderRadius: borderRadiusLG,
-                        flex: 1,
-                    }}
-                >
+                <Content className="app-content">
                     <Outlet></Outlet>
                 </Content>
             </Layout>

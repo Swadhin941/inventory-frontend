@@ -64,6 +64,8 @@ const ModelDrawer = ({
             onClose={() => {}}
             maskClosable={false}
             keyboard={false}
+            width={360}
+            rootClassName="small-form-drawer"
         >
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {/* Close Button */}

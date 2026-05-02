@@ -47,12 +47,13 @@ const Register = () => {
         navigate("/login");
     };
     return (
-        <div className="row">
-            <div className="col-12 col-sm-12 col-md-12 col-lg-12">
-                <div className="registerCard d-flex justify-content-center align-items-center">
-                    <div className="card p-3 w-25">
-                        <div className="card-body">
-                            <form className="form" onSubmit={handleSubmit}>
+        <div className="container-fluid">
+            <div className="row">
+                <div className="col-12 col-sm-12 col-md-12 col-lg-12">
+                    <div className="registerCard d-flex justify-content-center align-items-center">
+                        <div className="card p-3">
+                            <div className="card-body">
+                                <form className="form" onSubmit={handleSubmit}>
                                 <div>
                                     <label htmlFor="full_name">Full name</label>
                                     <div className="input-group">
@@ -132,7 +133,8 @@ const Register = () => {
                                         )}
                                     </button>
                                 </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
