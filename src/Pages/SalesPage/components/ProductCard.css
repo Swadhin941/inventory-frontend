@@ -8,12 +8,12 @@
 }
 
 .product-card:hover {
-    border-color: #166534;
+    border-color: var(--primary);
     transform: translateY(-2px);
 }
 
 .product-card.selected {
-    border: 2px solid #166534;
+    border: 2px solid var(--primary);
     background: #f0f7ff;
 }
 
@@ -30,7 +30,7 @@
 }
 
 .price {
-    color: #166534;
+    color: var(--primary);
     font-weight: bold;
     font-size: 20px;
 }
@@ -44,7 +44,7 @@
     width: 100%;
     padding: 8px;
     border-radius: 8px;
-    background: #166534;
+    background: var(--primary);
     color: white;
     border: none;
 }
@@ -53,7 +53,7 @@
     width: 100%;
     padding: 8px;
     border-radius: 8px;
-    background: #166534;
+    background: var(--primary);
     color: white;
 }
 

@@ -6,10 +6,9 @@
   }
   
   .stats-card {
-    background: #fff;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    box-shadow: none;
   }
   
   .stats-title {
@@ -23,6 +22,28 @@
     font-size: 28px;
     line-height: 1.2;
   }
+
+  .stats-value {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  /* Color variants */
+  .stats-value.success {
+    color: #16a34a; /* green */
+  }
+  
+  .stats-value.warning {
+    color: #f59e0b; /* yellow */
+  }
+  
+  .stats-value.danger {
+    color: #dc2626; /* red */
+  }
+
 
   @media (max-width: 991px) {
     .stats-container {

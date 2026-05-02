@@ -1,43 +1,76 @@
+/* Base */
 .stats-card {
-    background: #fff;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: 0.2s ease;
-    height: 100%;
-    margin-bottom: 12px;
-  }
-  
-  .stats-card:hover {
-    transform: translateY(-2px);
-  }
-  
-  /* Title */
-  .stats-title {
-    font-size: 14px;
-    color: #6b7280;
-    margin-bottom: 8px;
-  }
-  
-  /* Value */
-  .stats-value {
-    font-size: 22px;
-    font-weight: 600;
-    margin: 0;
-  }
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
 
-  @media (max-width: 575px) {
-    .stats-card {
-      padding: 12px;
-      border-radius: 8px;
-    }
+/* Hover */
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
 
-    .stats-title {
-      font-size: 12px;
-      margin-bottom: 4px;
-    }
+/* Title */
+.stats-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
 
-    .stats-value {
-      font-size: 20px;
-    }
-  }
+/* Value */
+.stats-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Default */
+.stats-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Color only value */
+.stats-value.success {
+  color: #16a34a; /* green */
+}
+
+.stats-value.danger {
+  color: #dc2626; /* red */
+}
+
+.stats-value.info {
+  color: #2563eb; /* blue */
+}
+
+
+/* 
+.stats-card {
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+  height: 100%;
+  margin-bottom: 12px;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.stats-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.stats-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+} */

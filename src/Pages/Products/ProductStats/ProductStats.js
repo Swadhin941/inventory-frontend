@@ -2,10 +2,10 @@ import "./ProductStats.css";
 
 const ProductStats = () => {
   const stats = [
-    { title: "Total Products", value: 284, color: "#111827" },
-    { title: "In Stock", value: 241, color: "#16a34a" },
-    { title: "Low Stock", value: 28, color: "#f59e0b" },
-    { title: "Out of Stock", value: 15, color: "#dc2626" },
+    { title: "Total Products", value: 284, type: "default" },
+    { title: "In Stock", value: 241, type: "success" },
+    { title: "Low Stock", value: 28, type: "warning" },
+    { title: "Out of Stock", value: 15, type: "danger" },
   ];
 
   return (
@@ -13,7 +13,7 @@ const ProductStats = () => {
       {stats.map((item, i) => (
         <div className="stats-card" key={i}>
           <p className="stats-title">{item.title}</p>
-          <h2 style={{ color: item.color }}>{item.value}</h2>
+          <h2 className={`stats-value ${item.type}`}>{item.value}</h2>
         </div>
       ))}
     </div>

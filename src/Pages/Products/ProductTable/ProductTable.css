@@ -44,7 +44,7 @@
 
 /* Margin */
 .margin-positive {
-  color: #16a34a;
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -57,7 +57,7 @@
 
 .stock-high {
   background: #dcfce7;
-  color: #16a34a;
+  color: var(--primary);
 }
 
 .stock-low {
