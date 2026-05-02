@@ -4,7 +4,7 @@ import UserTable from "./UserTable/UserTable";
 
 const User = () => {
     return (
-        <div className="container-fluid">
+        <div className="container-fluid user-page">
             <div className="row">
                 <div className="col-12 col-md-12 col-lg-12">
                     <div className="mt-3">

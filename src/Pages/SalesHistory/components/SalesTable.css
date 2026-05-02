@@ -2,6 +2,8 @@
     background: #fff;
     padding: 16px;
     border-radius: 12px;
+    min-width: 0;
+    overflow-x: auto;
 }
 
 /* Filters */
@@ -9,6 +11,7 @@
     margin-bottom: 12px;
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .filter-btn {
@@ -26,6 +29,7 @@
 /* Table */
 .sales-table {
     width: 100%;
+    min-width: 720px;
     border-collapse: collapse;
 }
 
@@ -39,6 +43,7 @@
 .sales-table td {
     padding: 12px 10px;
     border-top: 1px solid #eee;
+    white-space: nowrap;
 }
 
 /* Status */
@@ -61,4 +66,36 @@
 .status.refunded {
     background: #fee2e2;
     color: #dc2626;
+}
+
+@media (max-width: 767px) {
+    .sales-table-container {
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .filter-section {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+
+    .filter-section::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filter-btn {
+        flex: 0 0 auto;
+        min-height: 38px;
+    }
+
+    .sales-table {
+        font-size: 12px;
+    }
+
+    .sales-table th,
+    .sales-table td {
+        padding: 10px 8px;
+    }
 }

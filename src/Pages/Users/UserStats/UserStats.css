@@ -4,6 +4,8 @@
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: 0.2s ease;
+    height: 100%;
+    margin-bottom: 12px;
   }
   
   .stats-card:hover {
@@ -21,4 +23,21 @@
   .stats-value {
     font-size: 22px;
     font-weight: 600;
+    margin: 0;
+  }
+
+  @media (max-width: 575px) {
+    .stats-card {
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .stats-title {
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .stats-value {
+      font-size: 20px;
+    }
   }

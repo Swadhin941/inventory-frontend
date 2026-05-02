@@ -25,7 +25,7 @@ const ProductGrid = ({ products = [], cart = [], addToCart }) => {
                     const isSelected = cart.find(p => p.id === item.id);
 
                     return (
-                        <div className="col-6 col-lg-4 mb-3" key={item.id}>
+                        <div className="col-12 col-sm-6 col-xl-4 mb-3" key={item.id}>
                             <ProductCard
                                 item={item}
                                 addToCart={addToCart}

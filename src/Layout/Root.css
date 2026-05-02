@@ -3,6 +3,42 @@ body {
     font-family: "Segoe UI", sans-serif;
 }
 
+.app-layout {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.app-sidebar {
+  background: #fff !important;
+}
+
+.app-main {
+  min-width: 0;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 0;
+  background: #fff;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+  margin: 24px 16px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  overflow-x: hidden;
+}
+
+.app-content .container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 /* Brand container */
 .brand-card {
   display: flex;
@@ -75,6 +111,31 @@ body {
 }
 
 @media (max-width: 575px) {
+  .app-content {
+    margin: 12px 8px;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .app-header {
+    height: 56px;
+    line-height: 56px;
+  }
+
+  .app-header .ant-btn {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .small-form-drawer .ant-drawer-content-wrapper {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  .small-form-drawer .ant-drawer-body {
+    padding: 16px;
+  }
+
   .brand-card {
     gap: 8px;
     padding: 10px 8px;

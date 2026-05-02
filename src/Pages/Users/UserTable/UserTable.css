@@ -2,6 +2,7 @@
     background: #fff;
     padding: 16px;
     border-radius: 12px;
+    min-width: 0;
   }
   
   /* Header */
@@ -119,6 +120,7 @@
     margin-bottom: 16px;
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
   }
   
   .filter-btn {
@@ -133,4 +135,83 @@
   .filter-btn.active {
     background: #166534;
     color: white;
+  }
+
+  .user-table {
+    width: 100%;
+  }
+
+  .user-table .ant-table {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .user-table .ant-table-cell {
+    white-space: nowrap;
+  }
+
+  .user-table .ant-table-cell:first-child {
+    white-space: normal;
+  }
+
+  .user-cell {
+    min-width: 190px;
+  }
+
+  .user-name,
+  .user-subtitle,
+  .user-email {
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 767px) {
+    .user-table-container {
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .filter-section {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .filter-section::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-btn {
+      flex: 0 0 auto;
+      min-height: 38px;
+    }
+
+    .user-table .ant-table {
+      font-size: 12px;
+    }
+
+    .user-table .ant-table-thead > tr > th,
+    .user-table .ant-table-tbody > tr > td {
+      padding: 10px 8px;
+    }
+
+    .action-group {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .action-btn,
+    .action-btn-danger {
+      width: 100%;
+      min-height: 34px;
+    }
+
+    .user-drawer .ant-drawer-content-wrapper {
+      width: 100% !important;
+      max-width: 100%;
+    }
+
+    .user-drawer .ant-drawer-body {
+      padding: 16px;
+    }
   }

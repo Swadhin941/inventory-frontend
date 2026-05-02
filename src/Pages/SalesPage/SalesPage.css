@@ -1,6 +1,15 @@
-.col-lg-4 {
+.sales-page {
+    min-width: 0;
+}
+
+.sales-layout {
+    row-gap: 16px;
+}
+
+.sales-summary-column {
     position: sticky;
-    top: 10px;
+    top: 80px;
+    align-self: flex-start;
 }
 
 .product-card {
@@ -18,4 +27,10 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
+}
+
+@media (max-width: 991px) {
+    .sales-summary-column {
+        position: static;
+    }
 }

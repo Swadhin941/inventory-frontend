@@ -53,8 +53,8 @@ const SalesPage = () => {
     };
 
     return (
-        <div className="container-fluid">
-            <div className="row mt-3">
+        <div className="container-fluid sales-page">
+            <div className="row sales-layout">
     
                 {/* LEFT SIDE */}
                 <div className="col-12 col-lg-8">
@@ -74,7 +74,7 @@ const SalesPage = () => {
                 </div>
     
                 {/* RIGHT SIDE */}
-                <div className="col-12 col-lg-4">
+                <div className="col-12 col-lg-4 sales-summary-column">
                     <OrderSummary
                         cart={cart}
                         increaseQty={increaseQty}

@@ -295,17 +295,17 @@ const ProductForm = ({ product, onClose }) => {
     const filteredModels = models.filter((m) => m.brand === selectedBrand);
 
     return (
-        <div className="product-form">
+        <>
             {/* Header */}
             <div className="form-header">
                 <h2>{product ? "Edit Product" : "Add New Product"}</h2>
 
                 <div className="form-actions">
-                    <button type="button" className="btn-cancel" onClick={onClose}>
+                    <button className="btn-cancel" onClick={onClose}>
                         Cancel
                     </button>
 
-                    <button type="button" className="btn-save" onClick={() => form.submit()}>
+                    <button className="btn-save" onClick={() => form.submit()}>
                         Save Product
                     </button>
                 </div>
@@ -317,9 +317,9 @@ const ProductForm = ({ product, onClose }) => {
                 onFinish={onFinish}
                 onValuesChange={handleValuesChange}
             >
-                <Row gutter={[16, 16]}>
+                <Row gutter={16}>
                     {/* LEFT */}
-                    <Col xs={24} lg={16}>
+                    <Col span={16}>
                         <div className="form-card">
                             <h3>Product Information</h3>
 
@@ -331,8 +331,8 @@ const ProductForm = ({ product, onClose }) => {
                                 <Input placeholder="Enter SKU" />
                             </Form.Item>
 
-                            <Row gutter={[10, 0]}>
-                                <Col xs={24} sm={12}>
+                            <Row gutter={10}>
+                                <Col span={12}>
                                     <Form.Item name="brand" label="Brand">
                                         <Select
                                             options={modelSelector.brands.map((b) => ({
@@ -350,7 +350,7 @@ const ProductForm = ({ product, onClose }) => {
                                     </Form.Item>
                                 </Col>
 
-                                <Col xs={24} sm={12}>
+                                <Col span={12}>
                                     <Form.Item name="model" label="Model">
                                         <Select
                                             options={filteredModels.map(
@@ -383,8 +383,8 @@ const ProductForm = ({ product, onClose }) => {
                         <div className="form-card">
                             {" "}
                             <h3>Pricing & Margin</h3>{" "}
-                            <Row gutter={[10, 0]}>
-                                <Col xs={24} sm={12}>
+                            <Row gutter={10}>
+                                <Col span={12}>
                                     <Form.Item
                                         name="cost"
                                         label="Cost Price (Purchase Price) *"
@@ -393,7 +393,7 @@ const ProductForm = ({ product, onClose }) => {
                                     </Form.Item>
                                 </Col>
 
-                                <Col xs={24} sm={12}>
+                                <Col span={12}>
                                     <Form.Item
                                         name="price"
                                         label="Selling Price *"
@@ -414,7 +414,7 @@ const ProductForm = ({ product, onClose }) => {
                     </Col>
 
                     {/* RIGHT */}
-                    <Col xs={24} lg={8}>
+                    <Col span={8}>
                         <div className="form-card">
                             <h3>Stock</h3>
 
@@ -428,7 +428,7 @@ const ProductForm = ({ product, onClose }) => {
                         </div>
 
                         {/* Brand Management */}
-                        <div className="form-card">
+                        <div className="form-card brand-management-card">
                             <div className="brand-header">
                                 <h3>Brand Management</h3>
 
@@ -451,12 +451,17 @@ const ProductForm = ({ product, onClose }) => {
                                                 className="brand-item"
                                                 key={index}
                                             >
-                                                <span>
-                                                    {brand.brand[0].toUpperCase() +
-                                                        brand.brand.slice(1)}
-                                                </span>
+                                                <div className="brand-name-group">
+                                                    <span className="brand-avatar">
+                                                        {brand.brand[0].toUpperCase()}
+                                                    </span>
+                                                    <span className="brand-name">
+                                                        {brand.brand[0].toUpperCase() +
+                                                            brand.brand.slice(1)}
+                                                    </span>
+                                                </div>
 
-                                                <div>
+                                                <div className="brand-item-actions">
                                                     <button
                                                         type="button"
                                                         className="edit-btn"
@@ -479,11 +484,11 @@ const ProductForm = ({ product, onClose }) => {
                                                 </div>
                                             </div>
                                         ))}
-                                        <div className="d-flex justify-content-between mt-2">
+                                        <div className="d-flex justify-content-between mt-2 brand-pagination">
                                             <div>
                                                 <button
                                                     type="button"
-                                                    className="btn btn-sm btn-primary"
+                                                    className="brand-page-btn"
                                                     disabled={
                                                         Math.round(
                                                             totalBrandCount /
@@ -500,7 +505,7 @@ const ProductForm = ({ product, onClose }) => {
                                             <div>
                                                 <button
                                                     type="button"
-                                                    className="btn btn-sm btn-primary"
+                                                    className="brand-page-btn"
                                                     disabled={
                                                         totalBrandCount <
                                                         brandPage * brandLimit
@@ -597,7 +602,7 @@ const ProductForm = ({ product, onClose }) => {
                 editingModel={editingModel}
                 selectedBrand={selectedBrand} // ✅ pass current brand
             />
-        </div>
+        </>
     );
 };
 
