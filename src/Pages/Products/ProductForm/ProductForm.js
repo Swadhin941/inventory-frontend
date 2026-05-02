@@ -1,13 +1,13 @@
 import {
-    Form,
-    Input,
-    Row,
-    Col,
-    Select,
-    Modal,
-    message,
-    Switch,
-    Skeleton,
+  Form,
+  Input,
+  Row,
+  Col,
+  Select,
+  Modal,
+  message,
+  Switch,
+  Skeleton,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill-new";
@@ -20,30 +20,39 @@ import { getAllBrandApi } from "../../../Services/slices/brand.slice";
 import { getAllBrand } from "../../../Services/slices/model.slice";
 
 const descriptionEditorModules = {
-    toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["link"],
-        ["clean"],
-    ],
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ list: "ordered" }, { list: "bullet" }],
+    ["link"],
+    ["clean"],
+  ],
 };
 
 const descriptionEditorFormats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "list",
-    "bullet",
-    "link",
+  "header",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "list",
+  "bullet",
+  "link",
 ];
 
 const ProductForm = ({ product, onClose }) => {
-    const [form] = Form.useForm();
-    const { brands, isBrandLoading, totalBrandCount } = useSelector(
-        (state) => state.brand,
+  const [form] = Form.useForm();
+  const { brands, isBrandLoading, totalBrandCount } = useSelector(
+    (state) => state.brand
+  );
+  const modelSelector = useSelector((state) => state.model);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    console.log(
+      totalBrandCount,
+      "total brand count",
+      Math.round(totalBrandCount / brandLimit),
+      Math.round(totalBrandCount / brandLimit) > brandPage
     );
     const modelSelector = useSelector((state) => state.model);
     const dispatch = useDispatch();
@@ -139,22 +148,10 @@ const ProductForm = ({ product, onClose }) => {
                     // setBrands((prev) => [...prev, brand]);
                 }
 
-                // ✅ Fill only empty fields
-                form.setFieldsValue({
-                    name: current.name || name,
-                    brand: current.brand || brand,
-                    description: current.description || description,
-                });
-
-                // ✅ Success message
-                message.success("Product loaded from barcode ✅");
-            } else {
-                message.warning("Product not found, only barcode added ⚠️");
-            }
-        } catch (err) {
-            console.error(err);
-            message.error("Scan failed ❌");
-        }
+  useEffect(() => {
+    dispatch(getAllBrand({ limit: "all" }));
+  }, [dispatch]);
+  const selectedBrand = Form.useWatch("brand", form);
 
         // ✅ Auto close scanner
         setTimeout(() => {
@@ -289,53 +286,338 @@ const ProductForm = ({ product, onClose }) => {
         }
     };
 
-    const handleEditModel = (model) => {
-        setEditingModel(model);
-        setModelDrawerOpen(true);
-    };
+  const [brandDrawerOpen, setBrandDrawerOpen] = useState(false);
+  const [editingBrand, setEditingBrand] = useState(null);
 
-    const handleUpdateModel = (updated, brand) => {
-        const clean = updated.trim();
+  // const [models, setModels] = useState([]);
+  const [modelDrawerOpen, setModelDrawerOpen] = useState(false);
+  const [editingModel, setEditingModel] = useState(null);
 
-        setModels((prev) =>
-            prev.map((m) =>
-                m.name === editingModel ? { ...m, name: clean, brand } : m,
-            ),
-        );
+  // Brand page and limit
+  const [brandPage, setBrandPage] = useState(1);
+  const [brandLimit, setBrandLimit] = useState(5);
 
+  // ✅ Model state (linked to brand)
+  const [models, setModels] = useState([]);
+  // [{ name: "iPhone 14", brand: "Apple" }]
+
+  // Handle pagination of brand
+  const handleBrandNextPage = () => {
+    setBrandPage((prev) => prev + 1);
+    dispatch(getAllBrandApi({ page: brandPage + 1, limit: brandLimit }));
+  };
+
+  const handleBrandPrevPage = () => {
+    setBrandPage((prev) => prev - 1);
+    dispatch(getAllBrandApi({ page: brandPage - 1, limit: brandLimit }));
+  };
+
+  const playBeep = () => {
+    const audio = new Audio(
+      "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+    );
+    audio.play();
+  };
+
+  const handleCloseScanner = () => {
+    setScanOpen(false);
+  };
+
+  // ✅ HANDLE SCAN (IMPROVED)
+  const handleScan = async (barcode) => {
+    setLoadingScan(true);
+
+    try {
+      const current = form.getFieldsValue();
+
+      console.log("Scanned:", barcode);
+
+      // 🔊 Beep sound
+      playBeep();
+
+      // ✅ Smart fill SKU / Model
+      if (!current.sku) {
+        form.setFieldsValue({ sku: barcode });
+      } else if (!current.model) {
+        form.setFieldsValue({ model: barcode });
+      }
+
+      // 🌐 Fetch product
+      const res = await fetch(
+        `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
+      );
+
+      const data = await res.json();
+
+      if (data.status === 1) {
+        const productData = data.product;
+
+        const name = productData.product_name;
+        const brand = productData.brands;
+        const description = productData.generic_name;
+
+        // ✅ Auto add brand
+        if (brand && !brands.includes(brand)) {
+          // setBrands((prev) => [...prev, brand]);
+        }
+
+        // ✅ Fill only empty fields
         form.setFieldsValue({
-            model: clean,
-            brand: brand,
+          name: current.name || name,
+          brand: current.brand || brand,
+          description: current.description || description,
         });
 
-        setEditingModel(null);
-    };
+        // ✅ Success message
+        message.success("Product loaded from barcode ✅");
+      } else {
+        message.warning("Product not found, only barcode added ⚠️");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Scan failed ❌");
+    }
 
-    const deleteModel = (model) => {
-        setModels(
-            models.filter(
-                (m) => !(m.name === model && m.brand === selectedBrand),
-            ),
-        );
-    };
+    // ✅ Auto close scanner
+    setTimeout(() => {
+      setScanOpen(false);
+      setLoadingScan(false);
+    }, 500);
+  };
 
-    const filteredModels = models.filter((m) => m.brand === selectedBrand);
+  // ✅ Auto margin calc
+  //   const handleValuesChange = (_, values) => {
+  //     const cost = parseFloat(values.cost_price);
+  //     const sell = parseFloat(values.sell_price);
 
-    return (
-        <>
-            {/* Header */}
-            <div className="form-header">
-                <h2>{product ? "Edit Product" : "Add New Product"}</h2>
+  //     if (cost && sell) {
+  //       const margin = (((sell - cost) / cost) * 100).toFixed(1);
+  //       form.setFieldsValue({ margin: `+${margin}%` });
+  //     }
+  //   };
+  const handleValuesChange = (_, values) => {
+    const cost = parseFloat(values.cost);
+    let price = parseFloat(values.price);
 
-                <div className="form-actions">
-                    <button className="btn-cancel" onClick={onClose}>
-                        Cancel
-                    </button>
+    const discountEnabled = values.discount;
+    const discountType = values.discountType;
+    const discountValue = parseFloat(values.discountValue);
 
-                    <button className="btn-save" onClick={() => form.submit()}>
-                        Save Product
-                    </button>
-                </div>
+    if (!cost || !price) return;
+
+    // ✅ Apply discount if enabled
+    if (discountEnabled && discountValue) {
+      if (discountType === "percentage") {
+        price = price - (price * discountValue) / 100;
+      } else if (discountType === "fixed") {
+        price = price - discountValue;
+      }
+    }
+
+    const profit = price - cost;
+    const margin = ((profit / cost) * 100).toFixed(1);
+
+    form.setFieldsValue({
+      margin: `${profit >= 0 ? "+" : ""}${margin}%`,
+      profit: Math.round(profit),
+    });
+  };
+
+  // ✅ Submit
+  const onFinish = (values) => {
+    console.log("Product:", values);
+    onClose();
+  };
+
+  // ✅ Load edit data
+  useEffect(() => {
+    if (product) {
+      form.setFieldsValue(product);
+    } else {
+      form.resetFields();
+    }
+  }, [product, form]);
+
+  // ✅ Add brand
+  const openBrandDrawer = () => {
+    setEditingBrand(null); // important
+    setBrandDrawerOpen(true);
+  };
+
+  const handleAddBrand = (brand) => {
+    const exists = brands.some((b) => b.toLowerCase() === brand.toLowerCase());
+
+    if (!exists) {
+      // setBrands((prev) => [...prev, brand]);
+
+      // ✅ auto select brand
+      form.setFieldsValue({ brand });
+
+      // ✅ close brand drawer
+      setBrandDrawerOpen(false);
+
+      // ✅ open model drawer automatically
+      setTimeout(() => {
+        setModelDrawerOpen(true);
+      }, 300);
+    } else {
+      message.warning("Brand already exists ⚠️");
+    }
+  };
+  // ✅ Edit brand
+  const handleEditBrand = (brand) => {
+    setEditingBrand(brand);
+    setBrandDrawerOpen(true);
+  };
+
+  const handleUpdateBrand = (updatedBrand) => {
+    const clean = updatedBrand.trim();
+
+    // setBrands((prev) => prev.map((b) => (b === editingBrand ? clean : b)));
+
+    form.setFieldsValue({ brand: clean });
+    setEditingBrand(null);
+  };
+
+  // ✅ Delete brand
+  const deleteBrand = (brand) => {
+    // setBrands(brands.filter((b) => b !== brand));
+  };
+
+  // Open model add
+  const openModelDrawer = () => {
+    setEditingModel(null);
+    setModelDrawerOpen(true);
+  };
+
+  const handleAddModel = (modelName, brand) => {
+    const exists = models.some(
+      (m) =>
+        m.name.toLowerCase() === modelName.toLowerCase() && m.brand === brand
+    );
+
+    if (!exists) {
+      setModels((prev) => [...prev, { name: modelName, brand }]);
+
+      form.setFieldsValue({
+        model: modelName,
+        brand: brand,
+      });
+    } else {
+      message.warning("Model exists ⚠️");
+    }
+  };
+
+  const handleEditModel = (model) => {
+    setEditingModel(model);
+    setModelDrawerOpen(true);
+  };
+
+  const handleUpdateModel = (updated, brand) => {
+    const clean = updated.trim();
+
+    setModels((prev) =>
+      prev.map((m) =>
+        m.name === editingModel ? { ...m, name: clean, brand } : m
+      )
+    );
+
+    form.setFieldsValue({
+      model: clean,
+      brand: brand,
+    });
+
+    setEditingModel(null);
+  };
+
+  const deleteModel = (model) => {
+    setModels(
+      models.filter((m) => !(m.name === model && m.brand === selectedBrand))
+    );
+  };
+
+  const filteredModels = models.filter((m) => m.brand === selectedBrand);
+
+  return (
+    <>
+      {/* Header */}
+      <div className="form-header">
+        <h2>{product ? "Edit Product" : "Add New Product"}</h2>
+
+        <div className="form-actions">
+          <button className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+
+          <button className="btn-save" onClick={() => form.submit()}>
+            Save Product
+          </button>
+        </div>
+      </div>
+
+      <Form
+        layout="vertical"
+        form={form}
+        onFinish={onFinish}
+        onValuesChange={handleValuesChange}
+      >
+        <Row gutter={16}>
+          {/* LEFT */}
+          <Col span={16}>
+            <div className="form-card">
+              <h3>Product Information</h3>
+
+              <Form.Item name="name" label="Product Name">
+                <Input />
+              </Form.Item>
+
+              <Form.Item name="sku" label="SKU / Model">
+                <Input placeholder="Enter SKU" />
+              </Form.Item>
+
+              <Row gutter={10}>
+                <Col span={12}>
+                  <Form.Item name="brand" label="Brand">
+                    <Select
+                      options={modelSelector.brands.map((b) => ({
+                        label: b.brand[0].toUpperCase() + b.brand.slice(1),
+                        value: b._id,
+                      }))}
+                      onChange={() =>
+                        form.setFieldsValue({
+                          model: null,
+                        })
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item name="model" label="Model">
+                    <Select
+                      options={filteredModels.map((m) => ({
+                        label: m.name,
+                        value: m.name,
+                      }))}
+                      disabled={!selectedBrand}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item
+                name="description"
+                label="Description"
+                getValueFromEvent={(content) => content}
+              >
+                <ReactQuill
+                  className="product-description-editor"
+                  theme="snow"
+                  modules={descriptionEditorModules}
+                  formats={descriptionEditorFormats}
+                  placeholder="Write product description"
+                />
+              </Form.Item>
             </div>
 
             <Form
@@ -582,19 +864,14 @@ const ProductForm = ({ product, onClose }) => {
                             </Form.Item>
                         </div>
 
-                        {/* Brand Management */}
-                        <div className="form-card brand-management-card">
-                            <div className="brand-header">
-                                <h3>Brand Management</h3>
+          {/* RIGHT */}
+          <Col span={8}>
+            <div className="form-card">
+              <h3>Stock</h3>
 
-                                <button
-                                    type="button"
-                                    className="btn-add"
-                                    onClick={openBrandDrawer}
-                                >
-                                    + Add Brand
-                                </button>
-                            </div>
+              <Form.Item name="quantity" label="Quantity">
+                <Input />
+              </Form.Item>
 
                             <div className="brand-list">
                                 {isBrandLoading ? (
@@ -638,48 +915,38 @@ const ProductForm = ({ product, onClose }) => {
                                                     >
                                                         Del
                                                     </button> */}
-                                                </div>
-                                            </div>
-                                        ))}
-                                        <div className="d-flex justify-content-between mt-2 brand-pagination">
-                                            <div>
-                                                <button
-                                                    type="button"
-                                                    className="brand-page-btn"
-                                                    disabled={
-                                                        Math.round(
-                                                            totalBrandCount /
-                                                                brandLimit,
-                                                        ) > brandPage
-                                                    }
-                                                    onClick={
-                                                        handleBrandPrevPage
-                                                    }
-                                                >
-                                                    Prev
-                                                </button>
-                                            </div>
-                                            <div>
-                                                <button
-                                                    type="button"
-                                                    className="brand-page-btn"
-                                                    disabled={
-                                                        totalBrandCount <
-                                                        brandPage * brandLimit
-                                                    }
-                                                    onClick={
-                                                        handleBrandNextPage
-                                                    }
-                                                >
-                                                    Next
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
                         </div>
-                        {/*
+                      </div>
+                    ))}
+                    <div className="d-flex justify-content-between mt-2 brand-pagination">
+                      <div>
+                        <button
+                          type="button"
+                          className="brand-page-btn"
+                          disabled={
+                            Math.round(totalBrandCount / brandLimit) > brandPage
+                          }
+                          onClick={handleBrandPrevPage}
+                        >
+                          Prev
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          type="button"
+                          className="brand-page-btn"
+                          disabled={totalBrandCount < brandPage * brandLimit}
+                          onClick={handleBrandNextPage}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            {/*
 
                         Not needed for now
                             <div className="form-card">
@@ -732,35 +999,35 @@ const ProductForm = ({ product, onClose }) => {
                         </div>
 
                             */}
-                    </Col>
-                </Row>
-            </Form>
+          </Col>
+        </Row>
+      </Form>
 
-            {/* ✅ Brand Drawer */}
-            <BrandDrawer
-                open={brandDrawerOpen}
-                onClose={() => {
-                    setBrandDrawerOpen(false);
-                    setEditingBrand(null);
-                }}
-                onAdd={handleAddBrand}
-                onUpdate={handleUpdateBrand}
-                editingBrand={editingBrand}
-            />
+      {/* ✅ Brand Drawer */}
+      <BrandDrawer
+        open={brandDrawerOpen}
+        onClose={() => {
+          setBrandDrawerOpen(false);
+          setEditingBrand(null);
+        }}
+        onAdd={handleAddBrand}
+        onUpdate={handleUpdateBrand}
+        editingBrand={editingBrand}
+      />
 
-            <ModelDrawer
-                open={modelDrawerOpen}
-                onClose={() => {
-                    setModelDrawerOpen(false);
-                    setEditingModel(null);
-                }}
-                onAdd={handleAddModel}
-                onUpdate={handleUpdateModel}
-                editingModel={editingModel}
-                selectedBrand={selectedBrand} // ✅ pass current brand
-            />
-        </>
-    );
+      <ModelDrawer
+        open={modelDrawerOpen}
+        onClose={() => {
+          setModelDrawerOpen(false);
+          setEditingModel(null);
+        }}
+        onAdd={handleAddModel}
+        onUpdate={handleUpdateModel}
+        editingModel={editingModel}
+        selectedBrand={selectedBrand} // ✅ pass current brand
+      />
+    </>
+  );
 };
 
 export default ProductForm;

@@ -1,5 +1,5 @@
 .user-table-container {
-    background: #fff;
+    background: var(--card);
     padding: 16px;
     border-radius: 12px;
     min-width: 0;
@@ -32,7 +32,7 @@
   }
   
   .filter-btn.active {
-    background: #166534;
+    background: var(--primary);
     color: white;
   }
   
@@ -47,7 +47,7 @@
     width: 35px;
     height: 35px;
     border-radius: 50%;
-    background: #1677ff;
+    background: var(--primary);
     color: #fff;
     display: flex;
     align-items: center;
@@ -66,7 +66,7 @@
   
   /* Role tag */
   .role-tag {
-    background: #eef2ff;
+    background: #e0e7ff;
     padding: 4px 10px;
     border-radius: 8px;
     font-size: 12px;
@@ -74,12 +74,12 @@
   
   /* Email */
   .user-email {
-    color: #2563eb;
+    color: var(--text-primary);
   }
   
   /* Status */
   .status-active {
-    color: #16a34a;
+    color: var(--primary);
     background: #dcfce7;
     padding: 4px 10px;
     border-radius: 999px;
@@ -87,7 +87,7 @@
   }
   
   .status-inactive {
-    color: #6b7280;
+    color: var(--muted);
     background: #f3f4f6;
     padding: 4px 10px;
     border-radius: 999px;
@@ -103,8 +103,13 @@
   .action-btn {
     border-radius: 6px;
     padding: 4px 10px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border);
+    background: white;
     cursor: pointer;
+  }
+  
+  .action-btn:hover {
+    background: #f9fafb;
   }
   
   .action-btn-danger {
@@ -115,6 +120,10 @@
     border: none;
     cursor: pointer;
   }
+  
+  .action-btn-danger:hover {
+    background: #fecaca;
+  }
 
   .filter-section {
     margin-bottom: 16px;
@@ -124,17 +133,24 @@
   }
   
   .filter-btn {
-    border: none;
     padding: 6px 14px;
     border-radius: 20px;
-    background: #f3f4f6;
+    background: var(--soft-bg);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
     cursor: pointer;
     font-size: 14px;
+    transition: 0.2s ease;
+  }
+  
+  .filter-btn:hover {
+    background: #f9fafb;
   }
   
   .filter-btn.active {
-    background: #166534;
+    background: var(--primary);
     color: white;
+    border-color: var(--primary);
   }
 
   .user-table {
@@ -156,6 +172,11 @@
 
   .user-cell {
     min-width: 190px;
+  }
+
+  .user-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
   }
 
   .user-name,
