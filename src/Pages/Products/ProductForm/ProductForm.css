@@ -38,7 +38,7 @@
 }
 
 .btn-save {
-  background: #166534;
+  background: var(--primary);
   color: white;
   padding: 6px 14px;
   border: none;
@@ -104,7 +104,7 @@
 }
 
 .btn-add {
-  background: #166534;
+  background: var(--primary);
   color: white;
   border: none;
   display: inline-flex;
@@ -119,7 +119,7 @@
 }
 
 .btn-add:hover {
-  background: #14532d;
+  background: var(--primary);
   transform: translateY(-1px);
 }
 
@@ -153,7 +153,7 @@
   flex: 0 0 30px;
   border-radius: 8px;
   background: #dcfce7;
-  color: #166534;
+  color: var(--primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -175,20 +175,20 @@
 
 .edit-btn {
   color: #fff;
-  background: #1677ff;
-  border: 1px solid #1677ff;
-  border-radius: 999px;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 5px;
   cursor: pointer;
   min-height: 30px;
   padding: 4px 13px;
   font-size: 12px;
   font-weight: 700;
-  box-shadow: 0 5px 12px rgba(22, 119, 255, 0.2);
+  box-shadow: 0 5px 12px rgba(167, 240, 165, 0.2);
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .edit-btn:hover {
-  background: #0958d9;
+  background: var(--primary);
   transform: translateY(-1px);
 }
 
@@ -206,10 +206,10 @@
 }
 
 .brand-page-btn {
-  background: #166534;
-  border-color: #166534;
+  background: var(--primary);
+  border-color: var(--primary);
   color: #fff;
-  border: 1px solid #166534;
+  border: 1px solid var(--primary);
   border-radius: 6px;
   cursor: pointer;
   min-height: 31px;
@@ -220,14 +220,14 @@
 
 .brand-page-btn:hover,
 .brand-page-btn:focus {
-  background: #14532d;
-  border-color: #14532d;
+  background: var(--primary);
+  border-color: var(--primary);
   color: #fff;
 }
 
 .brand-page-btn:disabled {
-  background: #166534;
-  border-color: #166534;
+  background: var(--primary);
+  border-color: var(--primary);
   color: #fff;
   opacity: 0.5;
 }
@@ -246,7 +246,7 @@
 
 .margin-label {
   font-size: 12px;
-  color: #166534;
+  color: var(--primary);
   font-weight: 600;
   margin-bottom: 4px;
 }
@@ -254,7 +254,7 @@
 .margin-value {
   font-size: 24px;
   font-weight: 700;
-  color: #166534;
+  color: var(--primary);
   margin: 0;
 }
 
@@ -264,14 +264,14 @@
 
 .profit-label {
   font-size: 12px;
-  color: #166534;
+  color: var(--primary);
   margin-bottom: 4px;
 }
 
 .profit-value {
   font-size: 18px;
   font-weight: 700;
-  color: #166534;
+  color: var(--primary);
   margin: 0;
 }
 

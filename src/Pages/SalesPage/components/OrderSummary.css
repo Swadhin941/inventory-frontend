@@ -51,7 +51,7 @@
 
 .btn-complete {
     width: 100%;
-    background: #166534;
+    background: var(--primary);
     color: white;
     padding: 10px;
     border-radius: 10px;
@@ -86,7 +86,7 @@
 }
 
 .payment-options .active {
-    background: #1677ff;
+    background: var(--primary);
     color: white;
 }
 

@@ -48,6 +48,11 @@ code {
 
   --border: #e5e7eb;
   --radius: 12px;
+
+  --text-primary: blue;
+
+  --text-secondary: #6b7280;
+
 }
 
 /* =========================
