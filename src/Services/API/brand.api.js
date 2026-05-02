@@ -13,7 +13,7 @@ export const getAllBrandApiService = async(payload)=>{
 }
 
 export const updateBrandApiService = async(payload)=>{
-    const response = await axiosSecure.put('/product/update-brand', payload);
+    const response = await axiosSecure.put("/product/update-brand", payload);
     const data = await response.data;
     return data;
 }

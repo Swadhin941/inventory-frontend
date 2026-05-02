@@ -1,21 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { Drawer, Input, Button, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { addBrandApi } from "../../Services/slices/brand.slice";
+import { addBrandApi, updateBrandApi } from "../../Services/slices/brand.slice";
 import Spinner from "../Spinner/Spinner";
+import toast from "react-hot-toast";
 
 const BrandDrawer = ({ open, onClose, onAdd, onUpdate, editingBrand }) => {
     const [brandName, setBrandName] = useState("");
-    const { brands, addBrand, addBrandLoading } = useSelector(
-        (state) => state.brand,
-    );
+    const {
+        brands,
+        addBrand,
+        addBrandLoading,
+        updateBrand,
+        updateBrandLoading,
+    } = useSelector((state) => state.brand);
     const dispatch = useDispatch();
-
+    // Add brand effects
     useEffect(() => {
         if (addBrand && !addBrandLoading) {
             onClose();
         }
     }, [brands, addBrand, addBrandLoading]);
+
+    // Update brand effects
+    useEffect(() => {
+        if (updateBrand && !updateBrandLoading) {
+            onClose();
+        }
+    }, [updateBrand, updateBrandLoading]);
     // ✅ When editing, pre-fill input
     useEffect(() => {
         if (editingBrand) {
@@ -32,9 +44,20 @@ const BrandDrawer = ({ open, onClose, onAdd, onUpdate, editingBrand }) => {
         }
 
         if (editingBrand) {
-            // ✅ Update mode
-            onUpdate(brandName);
-            message.success("Brand updated ✅");
+            if (brandName.trim().length === 0) {
+                toast.error("Enter brand name");
+                return;
+            }
+            if (brandName.toLowerCase() === editingBrand.brand.toLowerCase()) {
+                toast.error("Brand name already exists");
+                return;
+            }
+            dispatch(
+                updateBrandApi({
+                    brandId: editingBrand._id,
+                    brandName: brandName.toLowerCase(),
+                }),
+            );
         } else {
             const payload = {
                 brand: brandName.toLowerCase(),
@@ -74,9 +97,13 @@ const BrandDrawer = ({ open, onClose, onAdd, onUpdate, editingBrand }) => {
                     onChange={(e) => handleBrandNameChange(e.target.value)}
                 />
 
-                <Button type="primary" onClick={handleSave}>
+                <Button
+                    type="primary"
+                    onClick={handleSave}
+                    disabled={addBrandLoading || updateBrandLoading}
+                >
                     {editingBrand ? "Update Brand" : "Save Brand"}{" "}
-                    {addBrandLoading && <Spinner />}
+                    {(addBrandLoading || updateBrandLoading) && <Spinner />}
                 </Button>
             </div>
         </Drawer>

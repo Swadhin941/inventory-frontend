@@ -40,10 +40,11 @@ const ProductPage = () => {
     };
 
     return (
-        <div>
+        <div className="product-page">
             {/* Add Button */}
-            <div style={{ marginBottom: "16px", textAlign: "right" }}>
+            <div className="product-page-actions">
                 <Button
+                    className="add-product-btn"
                     type="primary"
                     onClick={() => handleOpenAddProductDrawer()}
                 >
@@ -78,6 +79,7 @@ const ProductPage = () => {
                 onClose={() => setOpen(false)}
                 width="80%"
                 placement="right"
+                rootClassName="product-drawer"
                 bodyStyle={{ padding: "16px", background: "#f5f5f5" }}
             >
                 <ProductForm
