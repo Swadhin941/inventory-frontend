@@ -411,6 +411,40 @@ const ProductForm = ({ product, onClose }) => {
                                 <Switch />{" "}
                             </Form.Item>{" "}
                         </div>
+
+                        <div className="form-card">
+    <h3>Warranty</h3>
+
+    {/* Switch */}
+    <Form.Item
+        name="hasWarranty"
+        label="Has Warranty"
+        valuePropName="checked"
+    >
+        <Switch />
+    </Form.Item>
+
+    {/* Conditional Input */}
+    <Form.Item shouldUpdate={(prev, curr) => prev.hasWarranty !== curr.hasWarranty}>
+        {({ getFieldValue }) =>
+            getFieldValue("hasWarranty") && (
+                <Form.Item
+                    name="warranty"
+                    label="Warranty (Months)"
+                    rules={[
+                        { required: true, message: "Enter warranty months" },
+                    ]}
+                >
+                    <Input
+                        type="number"
+                        placeholder="Enter warranty in months"
+                        addonAfter="Months"
+                    />
+                </Form.Item>
+            )
+        }
+    </Form.Item>
+</div>
                     </Col>
 
                     {/* RIGHT */}
