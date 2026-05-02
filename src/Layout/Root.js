@@ -42,11 +42,9 @@ const Root = () => {
                     </div>
 
                     {!collapsed && (
-                        <div className="text">
-                            <h1>
-                                QuddusShop{" "}
-                                <span className="location">Doha, Qatar</span>
-                            </h1>
+                        <div className="brand-text">
+                            <h1>QuddusShop</h1>
+                            <span className="location">Doha, Qatar</span>
                         </div>
                     )}
                 </div>
