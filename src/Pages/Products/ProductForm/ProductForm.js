@@ -97,72 +97,6 @@ const ProductForm = ({ product, onClose }) => {
         audio.play();
     };
 
-    const handleCloseScanner = () => {
-        setScanOpen(false);
-    };
-
-    // ✅ HANDLE SCAN (IMPROVED)
-    const handleScan = async (barcode) => {
-        setLoadingScan(true);
-
-        try {
-            const current = form.getFieldsValue();
-
-            console.log("Scanned:", barcode);
-
-            // 🔊 Beep sound
-            playBeep();
-
-            // ✅ Smart fill SKU / Model
-            if (!current.sku) {
-                form.setFieldsValue({ sku: barcode });
-            } else if (!current.model) {
-                form.setFieldsValue({ model: barcode });
-            }
-
-            // 🌐 Fetch product
-            const res = await fetch(
-                `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
-            );
-
-            const data = await res.json();
-
-            if (data.status === 1) {
-                const productData = data.product;
-
-                const name = productData.product_name;
-                const brand = productData.brands;
-                const description = productData.generic_name;
-
-                // ✅ Auto add brand
-                if (brand && !brands.includes(brand)) {
-                    // setBrands((prev) => [...prev, brand]);
-                }
-
-                // ✅ Fill only empty fields
-                form.setFieldsValue({
-                    name: current.name || name,
-                    brand: current.brand || brand,
-                    description: current.description || description,
-                });
-
-                // ✅ Success message
-                message.success("Product loaded from barcode ✅");
-            } else {
-                message.warning("Product not found, only barcode added ⚠️");
-            }
-        } catch (err) {
-            console.error(err);
-            message.error("Scan failed ❌");
-        }
-
-        // ✅ Auto close scanner
-        setTimeout(() => {
-            setScanOpen(false);
-            setLoadingScan(false);
-        }, 500);
-    };
-
     // ✅ Auto margin calc
     const handleValuesChange = (_, values) => {
         const cost = parseFloat(values.cost_price);
@@ -177,7 +111,6 @@ const ProductForm = ({ product, onClose }) => {
     // ✅ Submit
     const onFinish = (values) => {
         console.log("Product:", values);
-        onClose();
     };
 
     // ✅ Load edit data
@@ -195,28 +128,6 @@ const ProductForm = ({ product, onClose }) => {
         setBrandDrawerOpen(true);
     };
 
-    const handleAddBrand = (brand) => {
-        const exists = brands.some(
-            (b) => b.toLowerCase() === brand.toLowerCase(),
-        );
-
-        if (!exists) {
-            // setBrands((prev) => [...prev, brand]);
-
-            // ✅ auto select brand
-            form.setFieldsValue({ brand });
-
-            // ✅ close brand drawer
-            setBrandDrawerOpen(false);
-
-            // ✅ open model drawer automatically
-            setTimeout(() => {
-                setModelDrawerOpen(true);
-            }, 300);
-        } else {
-            message.warning("Brand already exists ⚠️");
-        }
-    };
     // ✅ Edit brand
     const handleEditBrand = (brand) => {
         setEditingBrand(brand);
@@ -232,16 +143,7 @@ const ProductForm = ({ product, onClose }) => {
         setEditingBrand(null);
     };
 
-    // ✅ Delete brand
-    const deleteBrand = (brand) => {
-        // setBrands(brands.filter((b) => b !== brand));
-    };
 
-    // Open model add
-    const openModelDrawer = () => {
-        setEditingModel(null);
-        setModelDrawerOpen(true);
-    };
 
     const handleAddModel = (modelName, brand) => {
         const exists = models.some(
@@ -262,10 +164,7 @@ const ProductForm = ({ product, onClose }) => {
         }
     };
 
-    const handleEditModel = (model) => {
-        setEditingModel(model);
-        setModelDrawerOpen(true);
-    };
+
 
     const handleUpdateModel = (updated, brand) => {
         const clean = updated.trim();
@@ -283,16 +182,6 @@ const ProductForm = ({ product, onClose }) => {
 
         setEditingModel(null);
     };
-
-    const deleteModel = (model) => {
-        setModels(
-            models.filter(
-                (m) => !(m.name === model && m.brand === selectedBrand),
-            ),
-        );
-    };
-
-    const filteredModels = models.filter((m) => m.brand === selectedBrand);
 
     return (
         <>
@@ -327,7 +216,7 @@ const ProductForm = ({ product, onClose }) => {
                                 <Input />
                             </Form.Item>
 
-                            <Form.Item name="sku" label="SKU / Model">
+                            <Form.Item name="sku" label="SKU / Serial Number">
                                 <Input placeholder="Enter SKU" />
                             </Form.Item>
 
@@ -335,12 +224,14 @@ const ProductForm = ({ product, onClose }) => {
                                 <Col span={12}>
                                     <Form.Item name="brand" label="Brand">
                                         <Select
-                                            options={modelSelector.brands.map((b) => ({
-                                                label:
-                                                    b.brand[0].toUpperCase() +
-                                                    b.brand.slice(1),
-                                                value: b._id,
-                                            }))}
+                                            options={modelSelector.brands.map(
+                                                (b) => ({
+                                                    label:
+                                                        b.brand[0].toUpperCase() +
+                                                        b.brand.slice(1),
+                                                    value: b._id,
+                                                }),
+                                            )}
                                             onChange={() =>
                                                 form.setFieldsValue({
                                                     model: null,
@@ -351,16 +242,8 @@ const ProductForm = ({ product, onClose }) => {
                                 </Col>
 
                                 <Col span={12}>
-                                    <Form.Item name="model" label="Model">
-                                        <Select
-                                            options={filteredModels.map(
-                                                (m) => ({
-                                                    label: m.name,
-                                                    value: m.name,
-                                                }),
-                                            )}
-                                            disabled={!selectedBrand}
-                                        />
+                                    <Form.Item label="Model" name="model">
+                                        <Input placeholder="Enter model" />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -413,38 +296,46 @@ const ProductForm = ({ product, onClose }) => {
                         </div>
 
                         <div className="form-card">
-    <h3>Warranty</h3>
+                            <h3>Warranty</h3>
 
-    {/* Switch */}
-    <Form.Item
-        name="hasWarranty"
-        label="Has Warranty"
-        valuePropName="checked"
-    >
-        <Switch />
-    </Form.Item>
+                            {/* Switch */}
+                            <Form.Item
+                                name="hasWarranty"
+                                label="Has Warranty"
+                                valuePropName="checked"
+                            >
+                                <Switch />
+                            </Form.Item>
 
-    {/* Conditional Input */}
-    <Form.Item shouldUpdate={(prev, curr) => prev.hasWarranty !== curr.hasWarranty}>
-        {({ getFieldValue }) =>
-            getFieldValue("hasWarranty") && (
-                <Form.Item
-                    name="warranty"
-                    label="Warranty (Months)"
-                    rules={[
-                        { required: true, message: "Enter warranty months" },
-                    ]}
-                >
-                    <Input
-                        type="number"
-                        placeholder="Enter warranty in months"
-                        addonAfter="Months"
-                    />
-                </Form.Item>
-            )
-        }
-    </Form.Item>
-</div>
+                            {/* Conditional Input */}
+                            <Form.Item
+                                shouldUpdate={(prev, curr) =>
+                                    prev.hasWarranty !== curr.hasWarranty
+                                }
+                            >
+                                {({ getFieldValue }) =>
+                                    getFieldValue("hasWarranty") && (
+                                        <Form.Item
+                                            name="warranty"
+                                            label="Warranty (Months)"
+                                            rules={[
+                                                {
+                                                    required: true,
+                                                    message:
+                                                        "Enter warranty months",
+                                                },
+                                            ]}
+                                        >
+                                            <Input
+                                                type="number"
+                                                placeholder="Enter warranty in months"
+                                                addonAfter="Months"
+                                            />
+                                        </Form.Item>
+                                    )
+                                }
+                            </Form.Item>
+                        </div>
                     </Col>
 
                     {/* RIGHT */}
@@ -491,7 +382,9 @@ const ProductForm = ({ product, onClose }) => {
                                                     </span>
                                                     <span className="brand-name">
                                                         {brand.brand[0].toUpperCase() +
-                                                            brand.brand.slice(1)}
+                                                            brand.brand.slice(
+                                                                1,
+                                                            )}
                                                     </span>
                                                 </div>
 
@@ -620,7 +513,6 @@ const ProductForm = ({ product, onClose }) => {
                     setBrandDrawerOpen(false);
                     setEditingBrand(null);
                 }}
-                onAdd={handleAddBrand}
                 onUpdate={handleUpdateBrand}
                 editingBrand={editingBrand}
             />

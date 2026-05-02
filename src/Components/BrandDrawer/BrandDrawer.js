@@ -5,7 +5,7 @@ import { addBrandApi, updateBrandApi } from "../../Services/slices/brand.slice";
 import Spinner from "../Spinner/Spinner";
 import toast from "react-hot-toast";
 
-const BrandDrawer = ({ open, onClose, onAdd, onUpdate, editingBrand }) => {
+const BrandDrawer = ({ open, onClose,  onUpdate, editingBrand }) => {
     const [brandName, setBrandName] = useState("");
     const {
         brands,
