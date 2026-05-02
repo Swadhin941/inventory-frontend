@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 220px;
 }
 
 .product-img {
@@ -16,6 +17,7 @@
 
 .product-name {
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .product-subtitle {
@@ -66,4 +68,63 @@
 .stock-out {
   background: #fee2e2;
   color: #dc2626;
+}
+
+.product-table {
+  width: 100%;
+}
+
+.product-table .ant-table-wrapper,
+.product-table .ant-spin-nested-loading,
+.product-table .ant-spin-container {
+  min-width: 0;
+}
+
+.product-table .ant-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.product-table .ant-table-cell {
+  white-space: nowrap;
+}
+
+.product-table .ant-table-cell:first-child {
+  white-space: normal;
+}
+
+@media (max-width: 767px) {
+  .product-cell {
+    min-width: 190px;
+    gap: 10px;
+  }
+
+  .product-img {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+  }
+
+  .product-name {
+    font-size: 13px;
+  }
+
+  .product-subtitle,
+  .brand-tag,
+  .stock-badge {
+    font-size: 11px;
+  }
+
+  .product-table .ant-table {
+    font-size: 12px;
+  }
+
+  .product-table .ant-table-thead > tr > th,
+  .product-table .ant-table-tbody > tr > td {
+    padding: 10px 8px;
+  }
+
+  .product-table .ant-pagination {
+    justify-content: center;
+  }
 }

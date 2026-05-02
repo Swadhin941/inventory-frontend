@@ -127,6 +127,11 @@ const brandSlice = createSlice({
                 if(action.payload.success){
                     state.updateBrandLoading = false;
                     state.updateBrand = action.payload.body;
+                    state.brands.forEach((brand) => {
+                        if (brand._id === action.payload.body._id) {
+                            brand.brand = action.payload.body.brand;
+                        }
+                    })
                     toast.success(action.payload.message);
                 }
             })

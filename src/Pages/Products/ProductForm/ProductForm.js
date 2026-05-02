@@ -10,17 +10,42 @@ import {
     Skeleton,
 } from "antd";
 import React, { useEffect, useState } from "react";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import "./ProductForm.css";
 import BrandDrawer from "../../../Components/BrandDrawer/BrandDrawer";
 import ModelDrawer from "../../../Components/ModelDrawer/ModelDrawer";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBrandApi } from "../../../Services/slices/brand.slice";
+import { getAllBrand } from "../../../Services/slices/model.slice";
+
+const descriptionEditorModules = {
+    toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["link"],
+        ["clean"],
+    ],
+};
+
+const descriptionEditorFormats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "link",
+];
 
 const ProductForm = ({ product, onClose }) => {
     const [form] = Form.useForm();
     const { brands, isBrandLoading, totalBrandCount } = useSelector(
         (state) => state.brand,
     );
+    const modelSelector = useSelector((state) => state.model);
     const dispatch = useDispatch();
     useEffect(() => {
         console.log(
@@ -30,6 +55,10 @@ const ProductForm = ({ product, onClose }) => {
             Math.round(totalBrandCount / brandLimit) > brandPage,
         );
     }, [totalBrandCount]);
+
+    useEffect(() => {
+        dispatch(getAllBrand({limit: "all"}))
+    }, [dispatch])
     const selectedBrand = Form.useWatch("brand", form);
 
     const [scanOpen, setScanOpen] = useState(false);
@@ -266,17 +295,17 @@ const ProductForm = ({ product, onClose }) => {
     const filteredModels = models.filter((m) => m.brand === selectedBrand);
 
     return (
-        <>
+        <div className="product-form">
             {/* Header */}
             <div className="form-header">
                 <h2>{product ? "Edit Product" : "Add New Product"}</h2>
 
                 <div className="form-actions">
-                    <button className="btn-cancel" onClick={onClose}>
+                    <button type="button" className="btn-cancel" onClick={onClose}>
                         Cancel
                     </button>
 
-                    <button className="btn-save" onClick={() => form.submit()}>
+                    <button type="button" className="btn-save" onClick={() => form.submit()}>
                         Save Product
                     </button>
                 </div>
@@ -288,9 +317,9 @@ const ProductForm = ({ product, onClose }) => {
                 onFinish={onFinish}
                 onValuesChange={handleValuesChange}
             >
-                <Row gutter={16}>
+                <Row gutter={[16, 16]}>
                     {/* LEFT */}
-                    <Col span={16}>
+                    <Col xs={24} lg={16}>
                         <div className="form-card">
                             <h3>Product Information</h3>
 
@@ -302,13 +331,15 @@ const ProductForm = ({ product, onClose }) => {
                                 <Input placeholder="Enter SKU" />
                             </Form.Item>
 
-                            <Row gutter={10}>
-                                <Col span={12}>
+                            <Row gutter={[10, 0]}>
+                                <Col xs={24} sm={12}>
                                     <Form.Item name="brand" label="Brand">
                                         <Select
-                                            options={brands.map((b) => ({
-                                                label: b,
-                                                value: b,
+                                            options={modelSelector.brands.map((b) => ({
+                                                label:
+                                                    b.brand[0].toUpperCase() +
+                                                    b.brand.slice(1),
+                                                value: b._id,
                                             }))}
                                             onChange={() =>
                                                 form.setFieldsValue({
@@ -319,7 +350,7 @@ const ProductForm = ({ product, onClose }) => {
                                     </Form.Item>
                                 </Col>
 
-                                <Col span={12}>
+                                <Col xs={24} sm={12}>
                                     <Form.Item name="model" label="Model">
                                         <Select
                                             options={filteredModels.map(
@@ -334,16 +365,26 @@ const ProductForm = ({ product, onClose }) => {
                                 </Col>
                             </Row>
 
-                            <Form.Item name="description" label="Description">
-                                <Input.TextArea rows={3} />
+                            <Form.Item
+                                name="description"
+                                label="Description"
+                                getValueFromEvent={(content) => content}
+                            >
+                                <ReactQuill
+                                    className="product-description-editor"
+                                    theme="snow"
+                                    modules={descriptionEditorModules}
+                                    formats={descriptionEditorFormats}
+                                    placeholder="Write product description"
+                                />
                             </Form.Item>
                         </div>
 
                         <div className="form-card">
                             {" "}
                             <h3>Pricing & Margin</h3>{" "}
-                            <Row gutter={10}>
-                                <Col span={12}>
+                            <Row gutter={[10, 0]}>
+                                <Col xs={24} sm={12}>
                                     <Form.Item
                                         name="cost"
                                         label="Cost Price (Purchase Price) *"
@@ -352,7 +393,7 @@ const ProductForm = ({ product, onClose }) => {
                                     </Form.Item>
                                 </Col>
 
-                                <Col span={12}>
+                                <Col xs={24} sm={12}>
                                     <Form.Item
                                         name="price"
                                         label="Selling Price *"
@@ -373,7 +414,7 @@ const ProductForm = ({ product, onClose }) => {
                     </Col>
 
                     {/* RIGHT */}
-                    <Col span={8}>
+                    <Col xs={24} lg={8}>
                         <div className="form-card">
                             <h3>Stock</h3>
 
@@ -392,6 +433,7 @@ const ProductForm = ({ product, onClose }) => {
                                 <h3>Brand Management</h3>
 
                                 <button
+                                    type="button"
                                     className="btn-add"
                                     onClick={openBrandDrawer}
                                 >
@@ -409,10 +451,14 @@ const ProductForm = ({ product, onClose }) => {
                                                 className="brand-item"
                                                 key={index}
                                             >
-                                                <span>{brand.brand}</span>
+                                                <span>
+                                                    {brand.brand[0].toUpperCase() +
+                                                        brand.brand.slice(1)}
+                                                </span>
 
                                                 <div>
                                                     <button
+                                                        type="button"
                                                         className="edit-btn"
                                                         onClick={() =>
                                                             handleEditBrand(
@@ -471,7 +517,10 @@ const ProductForm = ({ product, onClose }) => {
                                 )}
                             </div>
                         </div>
-                        <div className="form-card">
+                        {/*
+
+                        Not needed for now
+                            <div className="form-card">
                             <div className="brand-header">
                                 <h3>Model Management</h3>
 
@@ -519,6 +568,8 @@ const ProductForm = ({ product, onClose }) => {
                                     ))}
                             </div>
                         </div>
+
+                            */}
                     </Col>
                 </Row>
             </Form>
@@ -544,10 +595,9 @@ const ProductForm = ({ product, onClose }) => {
                 onAdd={handleAddModel}
                 onUpdate={handleUpdateModel}
                 editingModel={editingModel}
-                brands={brands} // ✅ pass brands
                 selectedBrand={selectedBrand} // ✅ pass current brand
             />
-        </>
+        </div>
     );
 };
 

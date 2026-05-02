@@ -17,3 +17,42 @@
     color: #6b7280;
     margin-bottom: 6px;
   }
+
+  .stats-card h2 {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  @media (max-width: 991px) {
+    .stats-container {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 575px) {
+    .stats-container {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stats-card {
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .stats-title {
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .stats-card h2 {
+      font-size: 22px;
+    }
+  }
+
+  @media (max-width: 340px) {
+    .stats-container {
+      grid-template-columns: 1fr;
+    }
+  }

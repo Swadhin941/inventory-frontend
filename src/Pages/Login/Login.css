@@ -1,3 +1,59 @@
-.loginCard{
-    height: 100vh;
+.loginCard {
+    min-height: 100vh;
+    padding: 24px 12px;
+}
+
+.loginCard .card {
+    width: min(100%, 420px) !important;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.loginCard .card-body {
+    padding: 24px;
+}
+
+.loginCard .input-group-text,
+.loginCard .form-control,
+.loginCard .btn {
+    min-height: 42px;
+}
+
+.loginCard .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+@media (max-width: 575px) {
+    .loginCard {
+        align-items: flex-start !important;
+        padding: 48px 12px 24px;
+    }
+
+    .loginCard .card {
+        border-radius: 10px;
+    }
+
+    .loginCard .card-body {
+        padding: 18px;
+    }
+
+    .loginCard .input-group-text,
+    .loginCard .form-control,
+    .loginCard .btn {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 360px) {
+    .loginCard .card-body {
+        padding: 14px;
+    }
+
+    .loginCard .form-control {
+        font-size: 14px;
+    }
 }
