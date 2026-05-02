@@ -111,6 +111,7 @@ const ProductForm = ({ product, onClose }) => {
     // ✅ Submit
     const onFinish = (values) => {
         console.log("Product:", values);
+        // form submit 
     };
 
     // ✅ Load edit data
@@ -240,7 +241,6 @@ const ProductForm = ({ product, onClose }) => {
                                         />
                                     </Form.Item>
                                 </Col>
-
                                 <Col span={12}>
                                     <Form.Item label="Model" name="model">
                                         <Input placeholder="Enter model" />
