@@ -311,12 +311,8 @@ const ProductForm = ({ product, onClose }) => {
         setEditingModel(null);
     };
 
-    const deleteModel = (model) => {
-        setModels(
-            models.filter(
-                (m) => !(m.name === model && m.brand === selectedBrand),
-            ),
-        );
+    const validateNumber = (value) => {
+        return value.replace(/[^0-9.]/g, "");
     };
 
     const filteredModels = models.filter((m) => m.brand === selectedBrand);
@@ -422,6 +418,13 @@ const ProductForm = ({ product, onClose }) => {
                                         <Input
                                             type="number"
                                             placeholder="e.g. 500"
+                                            onChange={(e) =>
+                                                form.setFieldsValue({
+                                                    cost: validateNumber(
+                                                        e.target.value,
+                                                    ),
+                                                })
+                                            }
                                         />
                                     </Form.Item>
                                 </Col>
@@ -434,6 +437,13 @@ const ProductForm = ({ product, onClose }) => {
                                         <Input
                                             type="number"
                                             placeholder="e.g. 800"
+                                            onChange={(e) =>
+                                                form.setFieldsValue({
+                                                    price: validateNumber(
+                                                        e.target.value,
+                                                    ),
+                                                })
+                                            }
                                         />
                                     </Form.Item>
                                 </Col>
@@ -574,11 +584,31 @@ const ProductForm = ({ product, onClose }) => {
                             <h3>Stock</h3>
 
                             <Form.Item name="quantity" label="Quantity">
-                                <Input />
+                                <Input
+                                    type={"text"}
+                                    placeholder="Enter quantity"
+                                    onChange={(e) =>
+                                        form.setFieldsValue({
+                                            quantity: validateNumber(
+                                                e.target.value,
+                                            ),
+                                        })
+                                    }
+                                />
                             </Form.Item>
 
                             <Form.Item name="low_stock" label="Low Stock Alert">
-                                <Input />
+                                <Input
+                                    type={"text"}
+                                    placeholder="Enter low stock threshold"
+                                    onChange={(e) =>
+                                        form.setFieldsValue({
+                                            low_stock: validateNumber(
+                                                e.target.value,
+                                            ),
+                                        })
+                                    }
+                                />
                             </Form.Item>
                         </div>
 
