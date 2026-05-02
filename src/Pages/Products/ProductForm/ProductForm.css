@@ -175,9 +175,9 @@
 
 .edit-btn {
   color: #fff;
-  background: var(--primary);
-  border: 1px solid var(--primary);
-  border-radius: 5px;
+  background: #166534;
+  border: 1px solid #166534;
+  border-radius: 999px;
   cursor: pointer;
   min-height: 30px;
   padding: 4px 13px;
@@ -332,6 +332,50 @@
     align-items: center;
   }
 }
+
+.margin-box {
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.margin-label {
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.margin-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+}
+
+.profit-box {
+  text-align: right;
+}
+
+.profit-label {
+  font-size: 12px;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.profit-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+}
+
 
 @media (max-width: 420px) {
   .form-actions {
