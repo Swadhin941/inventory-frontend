@@ -6,8 +6,6 @@ import { addModelApi, getAllBrand } from "../../Services/slices/model.slice";
 const ModelDrawer = ({
     open,
     onClose,
-    onAdd,
-    onUpdate,
     editingModel,
     selectedBrand, // ✅ receive selected brand
 }) => {
@@ -48,7 +46,7 @@ const ModelDrawer = ({
         }
 
         if (editingModel) {
-            onUpdate(clean, selected);
+            // onUpdate(clean, selected);
         } else {
             // onAdd(clean, selected);
             dispatch(addModelApi({model: clean, brand: selected}));

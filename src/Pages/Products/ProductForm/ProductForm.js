@@ -57,8 +57,8 @@ const ProductForm = ({ product, onClose }) => {
     }, [totalBrandCount]);
 
     useEffect(() => {
-        dispatch(getAllBrand({limit: "all"}))
-    }, [dispatch])
+        dispatch(getAllBrand({ limit: "all" }));
+    }, [dispatch]);
     const selectedBrand = Form.useWatch("brand", form);
 
     const [scanOpen, setScanOpen] = useState(false);
@@ -97,21 +97,114 @@ const ProductForm = ({ product, onClose }) => {
         audio.play();
     };
 
-    // ✅ Auto margin calc
-    const handleValuesChange = (_, values) => {
-        const cost = parseFloat(values.cost_price);
-        const sell = parseFloat(values.sell_price);
+    const handleCloseScanner = () => {
+        setScanOpen(false);
+    };
 
-        if (cost && sell) {
-            const margin = (((sell - cost) / cost) * 100).toFixed(1);
-            form.setFieldsValue({ margin: `+${margin}%` });
+    // ✅ HANDLE SCAN (IMPROVED)
+    const handleScan = async (barcode) => {
+        setLoadingScan(true);
+
+        try {
+            const current = form.getFieldsValue();
+
+            console.log("Scanned:", barcode);
+
+            // 🔊 Beep sound
+            playBeep();
+
+            // ✅ Smart fill SKU / Model
+            if (!current.sku) {
+                form.setFieldsValue({ sku: barcode });
+            } else if (!current.model) {
+                form.setFieldsValue({ model: barcode });
+            }
+
+            // 🌐 Fetch product
+            const res = await fetch(
+                `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
+            );
+
+            const data = await res.json();
+
+            if (data.status === 1) {
+                const productData = data.product;
+
+                const name = productData.product_name;
+                const brand = productData.brands;
+                const description = productData.generic_name;
+
+                // ✅ Auto add brand
+                if (brand && !brands.includes(brand)) {
+                    // setBrands((prev) => [...prev, brand]);
+                }
+
+                // ✅ Fill only empty fields
+                form.setFieldsValue({
+                    name: current.name || name,
+                    brand: current.brand || brand,
+                    description: current.description || description,
+                });
+
+                // ✅ Success message
+                message.success("Product loaded from barcode ✅");
+            } else {
+                message.warning("Product not found, only barcode added ⚠️");
+            }
+        } catch (err) {
+            console.error(err);
+            message.error("Scan failed ❌");
         }
+
+        // ✅ Auto close scanner
+        setTimeout(() => {
+            setScanOpen(false);
+            setLoadingScan(false);
+        }, 500);
+    };
+
+    // ✅ Auto margin calc
+    //   const handleValuesChange = (_, values) => {
+    //     const cost = parseFloat(values.cost_price);
+    //     const sell = parseFloat(values.sell_price);
+
+    //     if (cost && sell) {
+    //       const margin = (((sell - cost) / cost) * 100).toFixed(1);
+    //       form.setFieldsValue({ margin: `+${margin}%` });
+    //     }
+    //   };
+    const handleValuesChange = (_, values) => {
+        const cost = parseFloat(values.cost);
+        let price = parseFloat(values.price);
+
+        const discountEnabled = values.discount;
+        const discountType = values.discountType;
+        const discountValue = parseFloat(values.discountValue);
+
+        if (!cost || !price) return;
+
+        // ✅ Apply discount if enabled
+        if (discountEnabled && discountValue) {
+            if (discountType === "percentage") {
+                price = price - (price * discountValue) / 100;
+            } else if (discountType === "fixed") {
+                price = price - discountValue;
+            }
+        }
+
+        const profit = price - cost;
+        const margin = ((profit / cost) * 100).toFixed(1);
+
+        form.setFieldsValue({
+            margin: `${profit >= 0 ? "+" : ""}${margin}%`,
+            profit: Math.round(profit),
+        });
     };
 
     // ✅ Submit
     const onFinish = (values) => {
         console.log("Product:", values);
-        // form submit 
+        onClose();
     };
 
     // ✅ Load edit data
@@ -129,6 +222,28 @@ const ProductForm = ({ product, onClose }) => {
         setBrandDrawerOpen(true);
     };
 
+    const handleAddBrand = (brand) => {
+        const exists = brands.some(
+            (b) => b.toLowerCase() === brand.toLowerCase(),
+        );
+
+        if (!exists) {
+            // setBrands((prev) => [...prev, brand]);
+
+            // ✅ auto select brand
+            form.setFieldsValue({ brand });
+
+            // ✅ close brand drawer
+            setBrandDrawerOpen(false);
+
+            // ✅ open model drawer automatically
+            setTimeout(() => {
+                setModelDrawerOpen(true);
+            }, 300);
+        } else {
+            message.warning("Brand already exists ⚠️");
+        }
+    };
     // ✅ Edit brand
     const handleEditBrand = (brand) => {
         setEditingBrand(brand);
@@ -144,7 +259,16 @@ const ProductForm = ({ product, onClose }) => {
         setEditingBrand(null);
     };
 
+    // ✅ Delete brand
+    const deleteBrand = (brand) => {
+        // setBrands(brands.filter((b) => b !== brand));
+    };
 
+    // Open model add
+    const openModelDrawer = () => {
+        setEditingModel(null);
+        setModelDrawerOpen(true);
+    };
 
     const handleAddModel = (modelName, brand) => {
         const exists = models.some(
@@ -165,7 +289,10 @@ const ProductForm = ({ product, onClose }) => {
         }
     };
 
-
+    const handleEditModel = (model) => {
+        setEditingModel(model);
+        setModelDrawerOpen(true);
+    };
 
     const handleUpdateModel = (updated, brand) => {
         const clean = updated.trim();
@@ -183,6 +310,16 @@ const ProductForm = ({ product, onClose }) => {
 
         setEditingModel(null);
     };
+
+    const deleteModel = (model) => {
+        setModels(
+            models.filter(
+                (m) => !(m.name === model && m.brand === selectedBrand),
+            ),
+        );
+    };
+
+    const filteredModels = models.filter((m) => m.brand === selectedBrand);
 
     return (
         <>
@@ -217,7 +354,7 @@ const ProductForm = ({ product, onClose }) => {
                                 <Input />
                             </Form.Item>
 
-                            <Form.Item name="sku" label="SKU / Serial Number">
+                            <Form.Item name="sku" label="SKU / Model">
                                 <Input placeholder="Enter SKU" />
                             </Form.Item>
 
@@ -241,9 +378,18 @@ const ProductForm = ({ product, onClose }) => {
                                         />
                                     </Form.Item>
                                 </Col>
+
                                 <Col span={12}>
-                                    <Form.Item label="Model" name="model">
-                                        <Input placeholder="Enter model" />
+                                    <Form.Item name="model" label="Model">
+                                        <Select
+                                            options={filteredModels.map(
+                                                (m) => ({
+                                                    label: m.name,
+                                                    value: m.name,
+                                                }),
+                                            )}
+                                            disabled={!selectedBrand}
+                                        />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -264,15 +410,19 @@ const ProductForm = ({ product, onClose }) => {
                         </div>
 
                         <div className="form-card">
-                            {" "}
-                            <h3>Pricing & Margin</h3>{" "}
+                            <h3>Pricing & Margin</h3>
+
+                            {/* COST + SELL PRICE */}
                             <Row gutter={10}>
                                 <Col span={12}>
                                     <Form.Item
                                         name="cost"
                                         label="Cost Price (Purchase Price) *"
                                     >
-                                        <Input />
+                                        <Input
+                                            type="number"
+                                            placeholder="e.g. 500"
+                                        />
                                     </Form.Item>
                                 </Col>
 
@@ -281,18 +431,98 @@ const ProductForm = ({ product, onClose }) => {
                                         name="price"
                                         label="Selling Price *"
                                     >
-                                        <Input />
+                                        <Input
+                                            type="number"
+                                            placeholder="e.g. 800"
+                                        />
                                     </Form.Item>
                                 </Col>
                             </Row>
+
+                            {/* DISCOUNT TOGGLE */}
                             <Form.Item
                                 name="discount"
                                 label="Available for Discount"
                                 valuePropName="checked"
                             >
-                                {" "}
-                                <Switch />{" "}
-                            </Form.Item>{" "}
+                                <Switch />
+                            </Form.Item>
+
+                            {/* DISCOUNT FIELDS */}
+                            <Form.Item shouldUpdate>
+                                {({ getFieldValue }) =>
+                                    getFieldValue("discount") && (
+                                        <Row gutter={10}>
+                                            <Col span={12}>
+                                                <Form.Item
+                                                    name="discountType"
+                                                    label="Discount Type"
+                                                >
+                                                    <Select placeholder="Select type">
+                                                        <Select.Option value="percentage">
+                                                            Percentage (%)
+                                                        </Select.Option>
+                                                        <Select.Option value="fixed">
+                                                            Fixed Amount (QAR)
+                                                        </Select.Option>
+                                                    </Select>
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col span={12}>
+                                                <Form.Item
+                                                    name="discountValue"
+                                                    label="Discount Value"
+                                                >
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="Enter value"
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                    )
+                                }
+                            </Form.Item>
+
+                            {/* AUTO CALCULATIONS */}
+                            <Form.Item shouldUpdate>
+                                {({ getFieldValue }) => {
+                                    const margin = getFieldValue("margin");
+                                    const profit = getFieldValue("profit");
+                                    const isLoss = profit < 0;
+
+                                    if (
+                                        margin === undefined ||
+                                        profit === undefined
+                                    )
+                                        return null;
+
+                                    return (
+                                        <div
+                                            className={`margin-box ${isLoss ? "loss" : ""}`}
+                                        >
+                                            <div>
+                                                <p className="margin-label">
+                                                    CALCULATED MARGIN
+                                                </p>
+                                                <h2 className="margin-value">
+                                                    {margin}
+                                                </h2>
+                                            </div>
+
+                                            <div className="profit-box">
+                                                <p className="profit-label">
+                                                    Profit per unit
+                                                </p>
+                                                <h3 className="profit-value">
+                                                    QAR {profit}
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    );
+                                }}
+                            </Form.Item>
                         </div>
 
                         <div className="form-card">
@@ -513,6 +743,7 @@ const ProductForm = ({ product, onClose }) => {
                     setBrandDrawerOpen(false);
                     setEditingBrand(null);
                 }}
+                onAdd={handleAddBrand}
                 onUpdate={handleUpdateBrand}
                 editingBrand={editingBrand}
             />
