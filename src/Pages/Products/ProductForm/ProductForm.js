@@ -18,6 +18,7 @@ import ModelDrawer from "../../../Components/ModelDrawer/ModelDrawer";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBrandApi } from "../../../Services/slices/brand.slice";
 import { getAllBrand } from "../../../Services/slices/model.slice";
+import { addProductApi } from "../../../Services/slices/product.slice";
 
 const descriptionEditorModules = {
     toolbar: [
@@ -56,9 +57,6 @@ const ProductForm = ({ product, onClose }) => {
         );
     }, [totalBrandCount]);
 
-    useEffect(() => {
-        dispatch(getAllBrand({ limit: "all" }));
-    }, [dispatch]);
     const selectedBrand = Form.useWatch("brand", form);
 
     const [scanOpen, setScanOpen] = useState(false);
@@ -90,89 +88,6 @@ const ProductForm = ({ product, onClose }) => {
         dispatch(getAllBrandApi({ page: brandPage - 1, limit: brandLimit }));
     };
 
-    const playBeep = () => {
-        const audio = new Audio(
-            "https://actions.google.com/sounds/v1/alarms/beep_short.ogg",
-        );
-        audio.play();
-    };
-
-    const handleCloseScanner = () => {
-        setScanOpen(false);
-    };
-
-    // ✅ HANDLE SCAN (IMPROVED)
-    const handleScan = async (barcode) => {
-        setLoadingScan(true);
-
-        try {
-            const current = form.getFieldsValue();
-
-            console.log("Scanned:", barcode);
-
-            // 🔊 Beep sound
-            playBeep();
-
-            // ✅ Smart fill SKU / Model
-            if (!current.sku) {
-                form.setFieldsValue({ sku: barcode });
-            } else if (!current.model) {
-                form.setFieldsValue({ model: barcode });
-            }
-
-            // 🌐 Fetch product
-            const res = await fetch(
-                `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
-            );
-
-            const data = await res.json();
-
-            if (data.status === 1) {
-                const productData = data.product;
-
-                const name = productData.product_name;
-                const brand = productData.brands;
-                const description = productData.generic_name;
-
-                // ✅ Auto add brand
-                if (brand && !brands.includes(brand)) {
-                    // setBrands((prev) => [...prev, brand]);
-                }
-
-                // ✅ Fill only empty fields
-                form.setFieldsValue({
-                    name: current.name || name,
-                    brand: current.brand || brand,
-                    description: current.description || description,
-                });
-
-                // ✅ Success message
-                message.success("Product loaded from barcode ✅");
-            } else {
-                message.warning("Product not found, only barcode added ⚠️");
-            }
-        } catch (err) {
-            console.error(err);
-            message.error("Scan failed ❌");
-        }
-
-        // ✅ Auto close scanner
-        setTimeout(() => {
-            setScanOpen(false);
-            setLoadingScan(false);
-        }, 500);
-    };
-
-    // ✅ Auto margin calc
-    //   const handleValuesChange = (_, values) => {
-    //     const cost = parseFloat(values.cost_price);
-    //     const sell = parseFloat(values.sell_price);
-
-    //     if (cost && sell) {
-    //       const margin = (((sell - cost) / cost) * 100).toFixed(1);
-    //       form.setFieldsValue({ margin: `+${margin}%` });
-    //     }
-    //   };
     const handleValuesChange = (_, values) => {
         const cost = parseFloat(values.cost);
         let price = parseFloat(values.price);
@@ -204,7 +119,28 @@ const ProductForm = ({ product, onClose }) => {
     // ✅ Submit
     const onFinish = (values) => {
         console.log("Product:", values);
-        onClose();
+        const payload = {
+            name: values.name,
+            sku: values.sku,
+            brand: values.brand,
+            model: values.model,
+            description: values.description,
+            purchasePrice: parseInt(values.cost),
+            sellingPrice: parseInt(values.price),
+            hasDiscount: values.discount,
+            discountType:
+                values.discountType === "fixed"
+                    ? "fixed_amount"
+                    : values.discountType,
+            discountValue: parseInt(values.discountValue),
+            hasWarranty: values.hasWarranty,
+            warrantyPeriod: parseInt(values.warranty),
+            stock: parseInt(values.quantity),
+            lowStockThreshold: parseInt(values.low_stock),
+        };
+        console.log("Payload to submit:", payload);
+        dispatch(addProductApi(payload));
+        // onClose();
     };
 
     // ✅ Load edit data
@@ -259,17 +195,6 @@ const ProductForm = ({ product, onClose }) => {
         setEditingBrand(null);
     };
 
-    // ✅ Delete brand
-    const deleteBrand = (brand) => {
-        // setBrands(brands.filter((b) => b !== brand));
-    };
-
-    // Open model add
-    const openModelDrawer = () => {
-        setEditingModel(null);
-        setModelDrawerOpen(true);
-    };
-
     const handleAddModel = (modelName, brand) => {
         const exists = models.some(
             (m) =>
@@ -289,11 +214,6 @@ const ProductForm = ({ product, onClose }) => {
         }
     };
 
-    const handleEditModel = (model) => {
-        setEditingModel(model);
-        setModelDrawerOpen(true);
-    };
-
     const handleUpdateModel = (updated, brand) => {
         const clean = updated.trim();
 
@@ -302,7 +222,6 @@ const ProductForm = ({ product, onClose }) => {
                 m.name === editingModel ? { ...m, name: clean, brand } : m,
             ),
         );
-
         form.setFieldsValue({
             model: clean,
             brand: brand,
@@ -314,8 +233,6 @@ const ProductForm = ({ product, onClose }) => {
     const validateNumber = (value) => {
         return value.replace(/[^0-9.]/g, "");
     };
-
-    const filteredModels = models.filter((m) => m.brand === selectedBrand);
 
     return (
         <>
@@ -339,6 +256,7 @@ const ProductForm = ({ product, onClose }) => {
                 form={form}
                 onFinish={onFinish}
                 onValuesChange={handleValuesChange}
+                requiredMark={false}
             >
                 <Row gutter={16}>
                     {/* LEFT */}
@@ -346,17 +264,50 @@ const ProductForm = ({ product, onClose }) => {
                         <div className="form-card">
                             <h3>Product Information</h3>
 
-                            <Form.Item name="name" label="Product Name">
+                            <Form.Item
+                                name="name"
+                                label={
+                                    <span>
+                                        Product Name{" "}
+                                        <span style={{ color: "red" }}>*</span>
+                                    </span>
+                                }
+                            >
                                 <Input />
                             </Form.Item>
 
-                            <Form.Item name="sku" label="SKU / Model">
-                                <Input placeholder="Enter SKU" />
+                            <Form.Item
+                                name="sku"
+                                label={
+                                    <span>
+                                        SKU / Serial Number{" "}
+                                        <span style={{ color: "red" }}>*</span>
+                                    </span>
+                                }
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            "Please enter SKU / Serial Number",
+                                    },
+                                ]}
+                            >
+                                <Input placeholder="Enter SKU / Serial Number" />
                             </Form.Item>
 
                             <Row gutter={10}>
                                 <Col span={12}>
-                                    <Form.Item name="brand" label="Brand">
+                                    <Form.Item
+                                        name="brand"
+                                        label={
+                                            <span>
+                                                Brand {""}
+                                                <span style={{ color: "red" }}>
+                                                    *
+                                                </span>
+                                            </span>
+                                        }
+                                    >
                                         <Select
                                             options={modelSelector.brands.map(
                                                 (b) => ({
@@ -376,16 +327,18 @@ const ProductForm = ({ product, onClose }) => {
                                 </Col>
 
                                 <Col span={12}>
-                                    <Form.Item name="model" label="Model">
-                                        <Select
-                                            options={filteredModels.map(
-                                                (m) => ({
-                                                    label: m.name,
-                                                    value: m.name,
-                                                }),
-                                            )}
-                                            disabled={!selectedBrand}
-                                        />
+                                    <Form.Item
+                                        name="model"
+                                        label={
+                                            <span>
+                                                Model{" "}
+                                                <span style={{ color: "red" }}>
+                                                    *
+                                                </span>
+                                            </span>
+                                        }
+                                    >
+                                        <Input placeholder="Enter model" />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -413,7 +366,14 @@ const ProductForm = ({ product, onClose }) => {
                                 <Col span={12}>
                                     <Form.Item
                                         name="cost"
-                                        label="Cost Price (Purchase Price) *"
+                                        label={
+                                            <span>
+                                                Cost Price (Purchase Price){" "}
+                                                <span style={{ color: "red" }}>
+                                                    *
+                                                </span>
+                                            </span>
+                                        }
                                     >
                                         <Input
                                             type="number"
@@ -432,7 +392,14 @@ const ProductForm = ({ product, onClose }) => {
                                 <Col span={12}>
                                     <Form.Item
                                         name="price"
-                                        label="Selling Price *"
+                                        label={
+                                            <span>
+                                                Selling Price{" "}
+                                                <span style={{ color: "red" }}>
+                                                    *
+                                                </span>
+                                            </span>
+                                        }
                                     >
                                         <Input
                                             type="number"

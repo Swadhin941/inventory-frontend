@@ -1,36 +1,29 @@
 import { Switch, Table } from "antd";
 import "./ProductTable.css";
 import EditButton from "../../../Components/Buttons/EditButton";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { getAllProductsApi } from "../../../Services/slices/product.slice";
+import { getAllBrand } from "../../../Services/slices/model.slice";
 
 const ProductTable = ({ onEdit, activeFilter }) => {
-    const data = [
-        {
-            _id: "1",
-            name: "Samsung Galaxy A55 5G",
-            variant: "128GB / Midnight Blue",
-            sku: "SM-A556E",
-            model: "Model 2024",
-            brand: "Samsung",
-            cost: 620,
-            price: 895,
-            stock: 42,
-            discount: true,
-        },
-        {
-            _id: "2",
-            name: "iPhone 15 Pro 256GB",
-            variant: "Natural Titanium",
-            sku: "MTU33LL/A",
-            model: "A17 Pro Chip",
-            brand: "Apple",
-            cost: 3800,
-            price: 4620,
-            stock: 6,
-            discount: false,
-        },
-    ];
+    const dispatch = useDispatch();
+    const { products, getAllProductsLoading, totalProducts } = useSelector(
+        (state) => state.product,
+    );
+    const { brands } = useSelector((state) => state.model);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    useEffect(()=>{
+        dispatch(getAllProductsApi({ page, limit }));
+        dispatch(getAllBrand({ limit: "all" }));
+    },[dispatch])
 
-    const filteredData = data.filter((item) => {
+    useEffect(()=>{
+        console.log(products, "product list check", getAllProductsLoading);
+    },[products, getAllProductsLoading])
+
+    const filteredData = products.filter((item) => {
         if (activeFilter === "All Products") return true;
         return item.brand === activeFilter;
     });
@@ -45,9 +38,9 @@ const ProductTable = ({ onEdit, activeFilter }) => {
 
                     <div>
                         <div className="product-name">{record.name}</div>
-                        <div className="product-subtitle">
+                        {/* <div className="product-subtitle">
                             {record.variant}
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             ),
@@ -68,31 +61,30 @@ const ProductTable = ({ onEdit, activeFilter }) => {
             title: "BRAND",
             dataIndex: "brand",
             responsive: ["sm"],
-            render: (brand) => <span className="brand-tag">{brand}</span>,
+            render: (brand) => <span className="brand-tag">{brands.find((b) => b._id === brand)?.brand }</span>,
         },
 
         {
             title: "COST PRICE",
             dataIndex: "cost",
             responsive: ["lg"],
-            render: (cost) => <span className="price">QAR {cost}</span>,
+            render: (_, record) => <span className="price">QAR {record.purchasePrice}</span>,
         },
 
         {
             title: "SELL PRICE",
             dataIndex: "price",
             width: 110,
-            render: (price) => <span className="price bold">QAR {price}</span>,
+            render: (_, record) => <span className="price bold">QAR {record.finalPrice}</span>,
         },
 
         {
             title: "MARGIN",
             responsive: ["lg"],
             render: (_, record) => {
-                const margin = ((record.price - record.cost) / record.cost) * 100;
                 return (
                     <span className="margin-positive">
-                        +{margin.toFixed(1)}%
+                        {record.marginPercentage > 0 ? "+" : "-"}{record.marginPercentage}%
                     </span>
                 );
             },
@@ -104,26 +96,27 @@ const ProductTable = ({ onEdit, activeFilter }) => {
             render: (_, record) => {
                 let className = "stock-badge";
 
-                if (record.stock > 20) className += " stock-high";
-                else if (record.stock > 0) className += " stock-low";
+                if (record.stock > record.lowStockThreshold) className += " stock-high";
+                else if (record.stock < record.lowStockThreshold)
+                    className += " stock-low";
                 else className += " stock-out";
 
-                return (
-                    <span className={className}>{record.stock} units</span>
-                );
+                return <span className={className}>{record.stock} units</span>;
             },
         },
 
         {
             title: "DISCOUNT OK",
             responsive: ["md"],
-            render: (_, record) => <Switch defaultChecked={record.discount} />,
+            render: (_, record) => <Switch defaultChecked={record.hasDiscount} />,
         },
 
         {
             title: "ACTIONS",
             width: 90,
-            render: (_, record) => <EditButton onClick={() => onEdit(record)} />,
+            render: (_, record) => (
+                <EditButton onClick={() => onEdit(record)} />
+            ),
         },
     ];
 
@@ -133,7 +126,12 @@ const ProductTable = ({ onEdit, activeFilter }) => {
             columns={columns}
             dataSource={filteredData}
             rowKey="_id"
-            pagination={{ responsive: true }}
+            pagination={{ 
+                current: page,
+                pageSize: limit,
+                total: totalProducts,
+                responsive: true
+             }}
             scroll={{ x: "max-content" }}
         />
     );
