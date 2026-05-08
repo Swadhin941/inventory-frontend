@@ -1,5 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addProductApiService, getAllProductsApiService } from "../API/product.api";
+import {
+    addProductApiService,
+    getAllProductsApiService,
+    updateProductApiService,
+} from "../API/product.api";
 import toast from "react-hot-toast";
 
 const initialState = {
@@ -8,6 +12,7 @@ const initialState = {
     getAllProductsLoading: false,
     error: null,
     totalProducts: 0,
+    updateProductLoading: false,
 };
 
 export const addProductApi = createAsyncThunk(
@@ -15,6 +20,21 @@ export const addProductApi = createAsyncThunk(
     async (payload, { rejectWithValue }) => {
         try {
             const response = await addProductApiService(payload);
+            if (!response.success) {
+                return rejectWithValue(response);
+            }
+            return response;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    },
+);
+
+export const updateProductApi = createAsyncThunk(
+    "product/updateProductApi",
+    async (payload, { rejectWithValue }) => {
+        try {
+            const response = await updateProductApiService(payload);
             if (!response.success) {
                 return rejectWithValue(response);
             }
@@ -44,7 +64,7 @@ const productSlice = createSlice({
     name: "product",
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(addProductApi.pending, (state,action) => {
+        builder.addCase(addProductApi.pending, (state, action) => {
             state.addProductLoading = true;
             state.error = null;
         });
@@ -59,7 +79,7 @@ const productSlice = createSlice({
         });
 
         // Get all products
-        builder.addCase(getAllProductsApi.pending, (state,action) => {
+        builder.addCase(getAllProductsApi.pending, (state, action) => {
             state.getAllProductsLoading = true;
             state.error = null;
         });
@@ -72,7 +92,28 @@ const productSlice = createSlice({
             toast.error(action.payload.message);
             state.getAllProductsLoading = false;
             state.error = action.payload;
-        }); 
+        });
+
+        //Update product reducer
+        builder.addCase(updateProductApi.pending, (state, action) => {
+            state.updateProductLoading = true;
+            state.error = null;
+        });
+        builder.addCase(updateProductApi.fulfilled, (state, action) => {
+            state.updateProductLoading = false;
+            const updatedProduct = action.payload.body;
+            const index = state.products.findIndex(
+                (product) => product._id === updatedProduct._id,
+            );
+            if (index !== -1) {
+                state.products[index] = updatedProduct;
+            }
+        });
+        builder.addCase(updateProductApi.rejected, (state, action) => {
+            toast.error(action.payload.message);
+            state.updateProductLoading = false;
+            state.error = action.payload;
+        });
     },
 });
 

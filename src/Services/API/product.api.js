@@ -11,3 +11,9 @@ export const getAllProductsApiService = async(payload)=>{
     const data = await response.data;
     return data;
 }
+
+export const updateProductApiService = async(payload)=>{    
+    const response = await axiosSecure.put("/product/update-product", payload);
+    const data = await response.data;
+    return data;
+}

@@ -18,7 +18,11 @@ import ModelDrawer from "../../../Components/ModelDrawer/ModelDrawer";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBrandApi } from "../../../Services/slices/brand.slice";
 import { getAllBrand } from "../../../Services/slices/model.slice";
-import { addProductApi } from "../../../Services/slices/product.slice";
+import {
+    addProductApi,
+    updateProductApi,
+} from "../../../Services/slices/product.slice";
+import Spinner from "../../../Components/Spinner/Spinner";
 
 const descriptionEditorModules = {
     toolbar: [
@@ -47,15 +51,41 @@ const ProductForm = ({ product, onClose }) => {
         (state) => state.brand,
     );
     const modelSelector = useSelector((state) => state.model);
+    const { products, updateProductLoading } = useSelector(
+        (state) => state.product,
+    );
     const dispatch = useDispatch();
     useEffect(() => {
-        console.log(
-            totalBrandCount,
-            "total brand count",
-            Math.round(totalBrandCount / brandLimit),
-            Math.round(totalBrandCount / brandLimit) > brandPage,
-        );
-    }, [totalBrandCount]);
+        if (product) {
+            form.setFieldsValue({
+                _id: product._id,
+                name: product.name,
+                brand: product.brand,
+                sku: product.sku,
+                model: product.model,
+                description: product.description,
+                cost: product.purchasePrice,
+                price: product.sellingPrice,
+                discount: product.hasDiscount,
+                discountType:
+                    product.discountType === "fixed_amount"
+                        ? "fixed"
+                        : product.discountType,
+                discountValue: product.discountValue,
+
+                hasWarranty: product.hasWarranty,
+                warranty: product.warrantyPeriod,
+                quantity: product.stock,
+                low_stock: product.lowStockThreshold,
+
+                // Calculated
+                margin: `${product.marginPercentage}%`,
+                profit: Math.round(product.finalPrice - product.purchasePrice),
+            });
+        } else {
+            form.resetFields();
+        }
+    }, [form, product]);
 
     const selectedBrand = Form.useWatch("brand", form);
 
@@ -139,8 +169,12 @@ const ProductForm = ({ product, onClose }) => {
             lowStockThreshold: parseInt(values.low_stock),
         };
         console.log("Payload to submit:", payload);
-        dispatch(addProductApi(payload));
-        // onClose();
+        if (!product) {
+            dispatch(addProductApi(payload));
+        } else {
+            dispatch(updateProductApi(payload));
+        }
+        onClose();
     };
 
     // ✅ Load edit data
@@ -245,8 +279,8 @@ const ProductForm = ({ product, onClose }) => {
                         Cancel
                     </button>
 
-                    <button className="btn-save" onClick={() => form.submit()}>
-                        Save Product
+                    <button className="btn-save" onClick={() => form.submit()} disabled={updateProductLoading}>
+                        Save Product {updateProductLoading && <Spinner />}
                     </button>
                 </div>
             </div>
