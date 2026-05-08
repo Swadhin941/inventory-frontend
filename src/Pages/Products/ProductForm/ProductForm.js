@@ -72,13 +72,10 @@ const ProductForm = ({ product, onClose }) => {
                         ? "fixed"
                         : product.discountType,
                 discountValue: product.discountValue,
-
                 hasWarranty: product.hasWarranty,
                 warranty: product.warrantyPeriod,
                 quantity: product.stock,
                 low_stock: product.lowStockThreshold,
-
-                // Calculated
                 margin: `${product.marginPercentage}%`,
                 profit: Math.round(product.finalPrice - product.purchasePrice),
             });
