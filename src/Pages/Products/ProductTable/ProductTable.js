@@ -8,29 +8,29 @@ import {
     updateProductApi,
 } from "../../../Services/slices/product.slice";
 import { getAllBrand } from "../../../Services/slices/model.slice";
-import { updateBrandApi } from "../../../Services/slices/brand.slice";
 
-const ProductTable = ({ onEdit, activeFilter }) => {
+const ProductTable = ({ onEdit, search }) => {
     const dispatch = useDispatch();
     const { products, getAllProductsLoading, totalProducts } = useSelector(
         (state) => state.product,
     );
     const { brands } = useSelector((state) => state.model);
     const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(5);
+    const [limit, setLimit] = useState(10);
+
     useEffect(() => {
-        dispatch(getAllProductsApi({ page, limit }));
+        setPage(1);
+        setLimit(10);
+    }, [search]);
+
+    useEffect(() => {
+        dispatch(getAllProductsApi({ page, limit, search }));
         dispatch(getAllBrand({ limit: "all" }));
-    }, [dispatch, products.length, page, limit]);
+    }, [dispatch, page, limit, search]);
 
     useEffect(() => {
         console.log(products, "product list check", getAllProductsLoading);
     }, [products, getAllProductsLoading]);
-
-    const filteredData = products.filter((item) => {
-        if (activeFilter === "All Products") return true;
-        return item.brand === activeFilter;
-    });
 
     const handleDiscountToggle = (event, record) => {
         console.log(event, "discount toggle value", record);
@@ -161,7 +161,7 @@ const ProductTable = ({ onEdit, activeFilter }) => {
         <Table
             className="product-table"
             columns={columns}
-            dataSource={filteredData}
+            dataSource={products}
             rowKey="_id"
             pagination={{
                 current: page,

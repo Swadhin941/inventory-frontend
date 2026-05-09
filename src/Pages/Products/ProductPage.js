@@ -6,6 +6,7 @@ import "./ProductPage.css";
 import ProductStats from "./ProductStats/ProductStats";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBrandApi } from "../../Services/slices/brand.slice";
+import { getAllProductsApi } from "../../Services/slices/product.slice";
 
 const ProductPage = () => {
     const { brands } = useSelector((state) => state.model);
@@ -13,8 +14,9 @@ const ProductPage = () => {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [activeFilter, setActiveFilter] = useState("All Products");
-    const [brandPage, setBrandPage] = useState(1);
-    const [brandLimit, setBrandLimit] = useState(5);
+    const [selectedBrandId, setSelectedBrandId] = useState("");
+    const brandPage = 1;
+    const brandLimit = 5;
     const [filter, setFilter] = useState([]);
 
     useEffect(() => {
@@ -22,8 +24,12 @@ const ProductPage = () => {
             const brandFilters = brands.map((brand) => ({
                 name: brand.brand,
                 icon: "📱",
+                brandId: brand._id,
             }));
-            setFilter([{ name: "All Products", icon: "🟢" }, ...brandFilters]);
+            setFilter([
+                { name: "All Products", icon: "🟢", brandId: "" },
+                ...brandFilters,
+            ]);
         }
     }, [brands]);
     // ✅ FIX ADDED
@@ -36,6 +42,12 @@ const ProductPage = () => {
         setSelectedProduct(null); // reset for add
         setOpen(true);
         dispatch(getAllBrandApi({ page: brandPage, limit: brandLimit }));
+    };
+
+    const handleProductFilter = (brandId, filterName) => {
+        setActiveFilter(filterName);
+        setSelectedBrandId(brandId);
+        dispatch(getAllProductsApi({ page: 1, limit: 10, search: brandId }));
     };
 
     return (
@@ -60,7 +72,9 @@ const ProductPage = () => {
                         className={`filter-btn ${
                             activeFilter === item.name ? "active" : ""
                         }`}
-                        onClick={() => setActiveFilter(item.name)}
+                        onClick={() => {
+                            handleProductFilter(item.brandId, item.name);
+                        }}
                     >
                         <span className="icon">{item.icon}</span>
                         {item.name}
@@ -69,9 +83,8 @@ const ProductPage = () => {
             </div>
 
             {/* Table */}
-            <ProductTable onEdit={handleEdit} activeFilter={activeFilter} />
+            <ProductTable onEdit={handleEdit} search={selectedBrandId} />
 
-            {/* Drawer */}
             <Drawer
                 title={selectedProduct ? "Edit Product" : "Add New Product"}
                 open={open}
