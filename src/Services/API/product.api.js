@@ -17,3 +17,9 @@ export const updateProductApiService = async(payload)=>{
     const data = await response.data;
     return data;
 }
+
+export const getProductStatisticsApiService = async()=>{
+    const response = await axiosSecure.get("/product/product-statistics");
+    const data = await response.data;
+    return data;
+}

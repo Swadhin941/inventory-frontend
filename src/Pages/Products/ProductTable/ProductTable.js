@@ -18,7 +18,7 @@ const ProductTable = ({ onEdit, activeFilter }) => {
     useEffect(() => {
         dispatch(getAllProductsApi({ page, limit }));
         dispatch(getAllBrand({ limit: "all" }));
-    }, [dispatch]);
+    }, [dispatch, products.length]);
 
     useEffect(() => {
         console.log(products, "product list check", getAllProductsLoading);
