@@ -1,11 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Row, Col } from "antd";
 import CustomerForm from "./components/CustomerForm";
 import ProductGrid from "./components/ProductGrid";
 import OrderSummary from "./components/OrderSummary";
 import "./SalesPage.css";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllProductsApi } from "../../Services/slices/product.slice";
 
 const SalesPage = () => {
+    const dispatch = useDispatch();
+    const [page, setPage]= useState(1);
+    const [limit, setLimit] = useState(10);
+    const { brands } = useSelector((state) => state.product);
+    useEffect(()=>{
+        dispatch(getAllProductsApi({ page, limit }));
+    },[dispatch])
     const [cart, setCart] = useState([]);
     const products = [
         { id: 1, name: "Samsung A55", price: 895, stock: 10 },
@@ -55,14 +64,14 @@ const SalesPage = () => {
     return (
         <div className="container-fluid sales-page">
             <div className="row sales-layout">
-    
+
                 {/* LEFT SIDE */}
                 <div className="col-12 col-lg-8">
-                    
+
                     <div className="mb-3">
                         <CustomerForm />
                     </div>
-    
+
                     <div>
                         <ProductGrid
                             products={products}
@@ -70,9 +79,9 @@ const SalesPage = () => {
                             addToCart={addToCart}
                         />
                     </div>
-    
+
                 </div>
-    
+
                 {/* RIGHT SIDE */}
                 <div className="col-12 col-lg-4 sales-summary-column">
                     <OrderSummary
@@ -82,7 +91,7 @@ const SalesPage = () => {
                         removeItem={removeItem}
                     />
                 </div>
-    
+
             </div>
         </div>
     );

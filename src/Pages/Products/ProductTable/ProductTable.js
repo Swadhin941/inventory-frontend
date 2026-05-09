@@ -1,13 +1,15 @@
-import { Switch, Table } from "antd";
+import { Skeleton, Switch, Table } from "antd";
 import "./ProductTable.css";
 import EditButton from "../../../Components/Buttons/EditButton";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { getAllProductsApi, updateProductApi } from "../../../Services/slices/product.slice";
+import {
+    getAllProductsApi,
+    updateProductApi,
+} from "../../../Services/slices/product.slice";
 import { getAllBrand } from "../../../Services/slices/model.slice";
-import { updateBrandApi } from "../../../Services/slices/brand.slice";
 
-const ProductTable = ({ onEdit, activeFilter }) => {
+const ProductTable = ({ onEdit, search }) => {
     const dispatch = useDispatch();
     const { products, getAllProductsLoading, totalProducts } = useSelector(
         (state) => state.product,
@@ -15,19 +17,20 @@ const ProductTable = ({ onEdit, activeFilter }) => {
     const { brands } = useSelector((state) => state.model);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
+
     useEffect(() => {
-        dispatch(getAllProductsApi({ page, limit }));
+        setPage(1);
+        setLimit(10);
+    }, [search]);
+
+    useEffect(() => {
+        dispatch(getAllProductsApi({ page, limit, search }));
         dispatch(getAllBrand({ limit: "all" }));
-    }, [dispatch, products.length]);
+    }, [dispatch, page, limit, search]);
 
     useEffect(() => {
         console.log(products, "product list check", getAllProductsLoading);
     }, [products, getAllProductsLoading]);
-
-    const filteredData = products.filter((item) => {
-        if (activeFilter === "All Products") return true;
-        return item.brand === activeFilter;
-    });
 
     const handleDiscountToggle = (event, record) => {
         console.log(event, "discount toggle value", record);
@@ -36,6 +39,11 @@ const ProductTable = ({ onEdit, activeFilter }) => {
             hasDiscount: event,
         };
         dispatch(updateProductApi(payload));
+    };
+
+    const handleTableChange = (pagination) => {
+        setPage(pagination.current);
+        setLimit(pagination.pageSize);
     };
 
     const columns = [
@@ -147,11 +155,13 @@ const ProductTable = ({ onEdit, activeFilter }) => {
         },
     ];
 
-    return (
+    return getAllProductsLoading ? (
+        <Skeleton active />
+    ) : (
         <Table
             className="product-table"
             columns={columns}
-            dataSource={filteredData}
+            dataSource={products}
             rowKey="_id"
             pagination={{
                 current: page,
@@ -160,6 +170,7 @@ const ProductTable = ({ onEdit, activeFilter }) => {
                 responsive: true,
             }}
             scroll={{ x: "max-content" }}
+            onChange={handleTableChange}
         />
     );
 };
