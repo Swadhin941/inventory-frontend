@@ -8,25 +8,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllBrandApi } from "../../Services/slices/brand.slice";
 
 const ProductPage = () => {
-    const { brands, isBrandLoading } = useSelector((state) => state.brand);
+    const { brands } = useSelector((state) => state.model);
     const dispatch = useDispatch();
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [activeFilter, setActiveFilter] = useState("All Products");
     const [brandPage, setBrandPage] = useState(1);
     const [brandLimit, setBrandLimit] = useState(5);
+    const [filter, setFilter] = useState([]);
 
     useEffect(() => {
-        console.log(brands, "brand list check");
+        if (brands.length > 0) {
+            const brandFilters = brands.map((brand) => ({
+                name: brand.brand,
+                icon: "📱",
+            }));
+            setFilter([{ name: "All Products", icon: "🟢" }, ...brandFilters]);
+        }
     }, [brands]);
-    const filters = [
-        { name: "All Products", icon: "🟢" },
-        { name: "Samsung", icon: "📱" },
-        { name: "Apple", icon: "🍎" },
-        { name: "Google", icon: "📱" },
-        { name: "Xiaomi", icon: "📱" },
-        { name: "Accessories", icon: "🎧" },
-    ];
     // ✅ FIX ADDED
     const handleEdit = (product) => {
         setSelectedProduct(product);
@@ -55,7 +54,7 @@ const ProductPage = () => {
             <ProductStats />
 
             <div className="filter-bar">
-                {filters.map((item) => (
+                {filter.map((item) => (
                     <button
                         key={item.name}
                         className={`filter-btn ${

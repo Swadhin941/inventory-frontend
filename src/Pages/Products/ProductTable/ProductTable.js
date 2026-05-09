@@ -1,9 +1,12 @@
-import { Switch, Table } from "antd";
+import { Skeleton, Switch, Table } from "antd";
 import "./ProductTable.css";
 import EditButton from "../../../Components/Buttons/EditButton";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { getAllProductsApi, updateProductApi } from "../../../Services/slices/product.slice";
+import {
+    getAllProductsApi,
+    updateProductApi,
+} from "../../../Services/slices/product.slice";
 import { getAllBrand } from "../../../Services/slices/model.slice";
 import { updateBrandApi } from "../../../Services/slices/brand.slice";
 
@@ -14,11 +17,11 @@ const ProductTable = ({ onEdit, activeFilter }) => {
     );
     const { brands } = useSelector((state) => state.model);
     const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(5);
     useEffect(() => {
         dispatch(getAllProductsApi({ page, limit }));
         dispatch(getAllBrand({ limit: "all" }));
-    }, [dispatch, products.length]);
+    }, [dispatch, products.length, page, limit]);
 
     useEffect(() => {
         console.log(products, "product list check", getAllProductsLoading);
@@ -36,6 +39,11 @@ const ProductTable = ({ onEdit, activeFilter }) => {
             hasDiscount: event,
         };
         dispatch(updateProductApi(payload));
+    };
+
+    const handleTableChange = (pagination) => {
+        setPage(pagination.current);
+        setLimit(pagination.pageSize);
     };
 
     const columns = [
@@ -147,7 +155,9 @@ const ProductTable = ({ onEdit, activeFilter }) => {
         },
     ];
 
-    return (
+    return getAllProductsLoading ? (
+        <Skeleton active />
+    ) : (
         <Table
             className="product-table"
             columns={columns}
@@ -160,6 +170,7 @@ const ProductTable = ({ onEdit, activeFilter }) => {
                 responsive: true,
             }}
             scroll={{ x: "max-content" }}
+            onChange={handleTableChange}
         />
     );
 };
