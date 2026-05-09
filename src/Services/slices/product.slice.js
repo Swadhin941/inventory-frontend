@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
     addProductApiService,
     getAllProductsApiService,
+    getProductStatisticsApiService,
     updateProductApiService,
 } from "../API/product.api";
 import toast from "react-hot-toast";
@@ -13,6 +14,8 @@ const initialState = {
     error: null,
     totalProducts: 0,
     updateProductLoading: false,
+    statistics: null,
+    statsLoader: false,
 };
 
 export const addProductApi = createAsyncThunk(
@@ -60,6 +63,22 @@ export const getAllProductsApi = createAsyncThunk(
     },
 );
 
+export const getProductStatisticsApi = createAsyncThunk(
+    "product/getProductStatisticsApi",
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await getProductStatisticsApiService();
+            if (!response.success) {
+                return rejectWithValue(response);
+            }
+            return response;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    },
+);
+    
+
 const productSlice = createSlice({
     name: "product",
     initialState,
@@ -69,8 +88,9 @@ const productSlice = createSlice({
             state.error = null;
         });
         builder.addCase(addProductApi.fulfilled, (state, action) => {
+            toast.success(action.payload.message);
             state.addProductLoading = false;
-            state.products.push(action.payload);
+            state.products.push(action.payload.body);
         });
         builder.addCase(addProductApi.rejected, (state, action) => {
             toast.error(action.payload.message);
@@ -102,17 +122,38 @@ const productSlice = createSlice({
         builder.addCase(updateProductApi.fulfilled, (state, action) => {
             state.updateProductLoading = false;
             const updatedProduct = action.payload.body;
+            console.log("Updated Product:", updatedProduct);
             const index = state.products.findIndex(
                 (product) => product._id === updatedProduct._id,
             );
             if (index !== -1) {
                 state.products[index] = updatedProduct;
             }
+            console.log("Updated Products List:", state.products);
         });
         builder.addCase(updateProductApi.rejected, (state, action) => {
             toast.error(action.payload.message);
             state.updateProductLoading = false;
             state.error = action.payload;
+        });
+
+
+        // Get product statistics
+        builder.addCase(getProductStatisticsApi.pending, (state, action) => {
+            state.getProductStatisticsLoading = true;
+            state.error = null;
+            state.statsLoader = true;
+        });
+        builder.addCase(getProductStatisticsApi.fulfilled, (state, action) => {
+            state.getProductStatisticsLoading = false;
+            state.statistics = action.payload.body;
+            state.statsLoader = false;
+        });
+        builder.addCase(getProductStatisticsApi.rejected, (state, action) => {
+            toast.error(action.payload.message);
+            state.getProductStatisticsLoading = false;
+            state.error = action.payload;
+            state.statsLoader = false;
         });
     },
 });

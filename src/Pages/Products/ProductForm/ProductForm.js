@@ -20,9 +20,11 @@ import { getAllBrandApi } from "../../../Services/slices/brand.slice";
 import { getAllBrand } from "../../../Services/slices/model.slice";
 import {
     addProductApi,
+    getProductStatisticsApi,
     updateProductApi,
 } from "../../../Services/slices/product.slice";
 import Spinner from "../../../Components/Spinner/Spinner";
+import toast from "react-hot-toast";
 
 const descriptionEditorModules = {
     toolbar: [
@@ -66,14 +68,14 @@ const ProductForm = ({ product, onClose }) => {
                 description: product.description,
                 cost: product.purchasePrice,
                 price: product.sellingPrice,
-                discount: product.hasDiscount,
+                discount: product.hasDiscount ?? false,
                 discountType:
                     product.discountType === "fixed_amount"
                         ? "fixed"
                         : product.discountType,
                 discountValue: product.discountValue,
-                hasWarranty: product.hasWarranty,
-                warranty: product.warrantyPeriod,
+                hasWarranty: product.hasWarranty ?? false,
+                warranty: product.warrantyPeriod || 0,
                 quantity: product.stock,
                 low_stock: product.lowStockThreshold,
                 margin: `${product.marginPercentage}%`,
@@ -129,7 +131,7 @@ const ProductForm = ({ product, onClose }) => {
         if (discountEnabled && discountValue) {
             if (discountType === "percentage") {
                 price = price - (price * discountValue) / 100;
-            } else if (discountType === "fixed") {
+            } else if (discountType === "fixed_amount") {
                 price = price - discountValue;
             }
         }
@@ -146,6 +148,15 @@ const ProductForm = ({ product, onClose }) => {
     // ✅ Submit
     const onFinish = (values) => {
         console.log("Product:", values);
+        if (
+            !values.name.trim() ||
+            !values.brand.trim() ||
+            !values.model.trim() ||
+            !values.sku.trim()
+        ) {
+            toast.error("Please fill in all required fields");
+            return;
+        }
         const payload = {
             name: values.name,
             sku: values.sku,
@@ -154,14 +165,14 @@ const ProductForm = ({ product, onClose }) => {
             description: values.description,
             purchasePrice: parseInt(values.cost),
             sellingPrice: parseInt(values.price),
-            hasDiscount: values.discount,
+            hasDiscount: values.discount ?? false,
             discountType:
                 values.discountType === "fixed"
                     ? "fixed_amount"
                     : values.discountType,
             discountValue: parseInt(values.discountValue),
-            hasWarranty: values.hasWarranty,
-            warrantyPeriod: parseInt(values.warranty),
+            hasWarranty: values.hasWarranty ?? false,
+            warrantyPeriod: parseInt(values.warranty) || 0,
             stock: parseInt(values.quantity),
             lowStockThreshold: parseInt(values.low_stock),
         };
@@ -169,8 +180,10 @@ const ProductForm = ({ product, onClose }) => {
         if (!product) {
             dispatch(addProductApi(payload));
         } else {
+            payload._id = product._id;
             dispatch(updateProductApi(payload));
         }
+        dispatch(getProductStatisticsApi());
         onClose();
     };
 
@@ -276,7 +289,11 @@ const ProductForm = ({ product, onClose }) => {
                         Cancel
                     </button>
 
-                    <button className="btn-save" onClick={() => form.submit()} disabled={updateProductLoading}>
+                    <button
+                        className="btn-save"
+                        onClick={() => form.submit()}
+                        disabled={updateProductLoading}
+                    >
                         Save Product {updateProductLoading && <Spinner />}
                     </button>
                 </div>
@@ -470,7 +487,7 @@ const ProductForm = ({ product, onClose }) => {
                                                         <Select.Option value="percentage">
                                                             Percentage (%)
                                                         </Select.Option>
-                                                        <Select.Option value="fixed">
+                                                        <Select.Option value="fixed_amount">
                                                             Fixed Amount (QAR)
                                                         </Select.Option>
                                                     </Select>
