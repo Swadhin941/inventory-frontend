@@ -4,12 +4,20 @@
 
 .sales-layout {
     row-gap: 16px;
+    align-items: flex-start;
 }
 
 .sales-summary-column {
     position: sticky;
-    top: 80px;
+    top: 88px;
     align-self: flex-start;
+    min-width: 0;
+}
+
+@media (max-width: 991px) {
+    .sales-summary-column {
+        position: static;
+    }
 }
 
 .product-card {
@@ -27,10 +35,4 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
-}
-
-@media (max-width: 991px) {
-    .sales-summary-column {
-        position: static;
-    }
 }
