@@ -16,6 +16,7 @@ const initialState = {
     updateProductLoading: false,
     statistics: null,
     statsLoader: false,
+    loadMoreProductLoading: false,
 };
 
 export const addProductApi = createAsyncThunk(
@@ -77,7 +78,21 @@ export const getProductStatisticsApi = createAsyncThunk(
         }
     },
 );
-    
+
+export const loadMoreProductsApi = createAsyncThunk(
+    "product/loadMoreProductsApi",
+    async (payload, { rejectWithValue }) => {
+        try {
+            const response = await getAllProductsApiService(payload);
+            if (!response.success) {
+                return rejectWithValue(response);
+            }
+            return response;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+);
 
 const productSlice = createSlice({
     name: "product",
@@ -154,6 +169,21 @@ const productSlice = createSlice({
             state.getProductStatisticsLoading = false;
             state.error = action.payload;
             state.statsLoader = false;
+        });
+
+        // Load more products
+        builder.addCase(loadMoreProductsApi.pending, (state, action) => {
+            state.loadMoreProductLoading = true;
+            state.error = null;
+        });
+        builder.addCase(loadMoreProductsApi.fulfilled, (state, action) => {
+            state.loadMoreProductLoading = false;
+            state.products = [...state.products, ...action.payload.body];
+        });
+        builder.addCase(loadMoreProductsApi.rejected, (state, action) => {
+            toast.error(action.payload.message);
+            state.loadMoreProductLoading = false;
+            state.error = action.payload;
         });
     },
 });

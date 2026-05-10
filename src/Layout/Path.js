@@ -1,9 +1,9 @@
 import {
     DashboardOutlined,
+    PercentageOutlined,
     ProductOutlined,
     UserOutlined,
   } from "@ant-design/icons";
-  import { lazy } from "react";
   
   export const pathDeclaration = [
       {
@@ -35,5 +35,12 @@ import {
         icon: <DashboardOutlined />,
         label: "Sales History",
         path: "/dashboard/sales-history",
+      },
+      {
+        key: "/dashboard/discount",
+        icon: <PercentageOutlined />,
+        label: "Discounts",
+        path: "/dashboard/discount",
       }
+
   ];

@@ -1,0 +1,17 @@
+.discount-drawer .ant-drawer-header-title {
+    color: var(--text);
+}
+
+.discount-form .ant-form-item-label > label {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.discount-input-number,
+.discount-date-picker {
+    width: 100%;
+}
+
+.discount-form .ant-radio-wrapper {
+    color: var(--text);
+}

@@ -1,0 +1,202 @@
+.discount-table-container {
+    background: var(--card);
+    padding: 16px;
+    border-radius: 12px;
+    min-width: 0;
+}
+
+.discount-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.discount-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.discount-page-icon,
+.discount-coupon-icon {
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.discount-page-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    flex: 0 0 40px;
+    font-size: 18px;
+}
+
+.discount-title-group h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.discount-title-group p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.discount-coupon-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 210px;
+}
+
+.discount-coupon-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    flex: 0 0 40px;
+}
+
+.discount-code {
+    font-weight: 700;
+    color: var(--primary);
+    overflow-wrap: anywhere;
+}
+
+.discount-code.muted,
+.discount-value.muted {
+    color: #9ca3af;
+}
+
+.discount-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.discount-value {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.discount-tag {
+    background: #f3f4f6;
+    color: var(--text);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    display: inline-flex;
+}
+
+.discount-expiry {
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.discount-expiry.expired {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.discount-usage {
+    font-weight: 700;
+    color: var(--text);
+}
+
+.discount-usage span {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.discount-status {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.discount-status.active {
+    background: #dcfce7;
+    color: var(--primary);
+}
+
+.discount-status.expired {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.discount-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.discount-table {
+    width: 100%;
+}
+
+.discount-table .ant-table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.discount-table .ant-table-cell {
+    white-space: nowrap;
+}
+
+.discount-table .ant-table-cell:first-child {
+    white-space: normal;
+}
+
+@media (max-width: 767px) {
+    .discount-table-container {
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .discount-table-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .discount-table-header .ant-btn {
+        width: 100%;
+        min-height: 38px;
+    }
+
+    .discount-coupon-cell {
+        min-width: 190px;
+        gap: 10px;
+    }
+
+    .discount-page-icon,
+    .discount-coupon-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+    .discount-title-group h3 {
+        font-size: 16px;
+    }
+
+    .discount-table .ant-table {
+        font-size: 12px;
+    }
+
+    .discount-table .ant-table-thead > tr > th,
+    .discount-table .ant-table-tbody > tr > td {
+        padding: 10px 8px;
+    }
+
+    .discount-actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
