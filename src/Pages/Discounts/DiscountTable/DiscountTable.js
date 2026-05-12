@@ -6,56 +6,70 @@ import {
     StopOutlined,
 } from "@ant-design/icons";
 import { Button, Space, Table } from "antd";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import AddDiscount from "../AddDiscount/AddDiscount";
 import "./DiscountTable.css";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    getAllDiscountApi,
+    updateDiscountApi,
+} from "../../../Services/slices/discount.slice";
+import { getAllBrand } from "../../../Services/slices/model.slice";
+
+const formatDiscountTypeLabel = (discountType) => {
+    if (discountType === "fixed_amount") return "Fixed Amount";
+    if (discountType === "percentage") return "Percentage";
+    return discountType ? String(discountType).replace(/_/g, " ") : "—";
+};
+
+const formatDiscountAmount = (record) => {
+    if (record.discountType === "fixed_amount") {
+        return `QAR ${record.discountValue}`;
+    }
+    if (record.discountType === "percentage") {
+        return `${record.discountValue}%`;
+    }
+    return record.discountValue != null ? String(record.discountValue) : "—";
+};
+
+const getRowStatus = (record) => {
+    const expiredByDate =
+        record.expiryDate &&
+        dayjs(record.expiryDate).endOf("day").isBefore(dayjs());
+    if (expiredByDate) return "Expired";
+    if (record.isActive === false) return "Inactive";
+    return "Active";
+};
 
 const DiscountTable = () => {
-    const initialData = [
-        {
-            key: "1",
-            coupon: "WINTER10",
-            discount: "10%",
-            type: "Percentage",
-            value: 10,
-            applicable: ["Samsung", "Xiaomi"],
-            expiry: "31 Mar 2026",
-            expiryDate: "2026-03-31",
-            used: 24,
-            limit: 50,
-            status: "Active",
-        },
-        {
-            key: "2",
-            coupon: "EID50",
-            discount: "QAR 50",
-            type: "Fixed Amount",
-            value: 50,
-            applicable: ["All Eligible Products"],
-            expiry: "15 Apr 2026",
-            expiryDate: "2026-04-15",
-            used: 8,
-            limit: 100,
-            status: "Active",
-        },
-        {
-            key: "3",
-            coupon: "SUMMER25",
-            discount: "25%",
-            type: "Percentage",
-            value: 25,
-            applicable: ["Accessories"],
-            expiry: "28 Feb 2026",
-            expiryDate: "2026-02-28",
-            used: 67,
-            limit: 100,
-            status: "Expired",
-        },
-    ];
-    const [discounts, setDiscounts] = useState(initialData);
+    const { discounts, getAllDiscountLoading } = useSelector(
+        (state) => state.discount,
+    );
+    const { brands: brandCatalog } = useSelector((state) => state.model);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (brandCatalog?.length === 0) {
+            dispatch(getAllBrand({ limit: "all" }));
+        }
+    }, [dispatch, brandCatalog?.length]);
+
+    useEffect(() => {
+        if (discounts.length === 0) {
+        dispatch(getAllDiscountApi({ page, limit }));
+        }
+    }, [dispatch, page, limit]);
+
     const [open, setOpen] = useState(false);
     const [editingDiscount, setEditingDiscount] = useState(null);
+
+    const dataSource = useMemo(
+        () => (Array.isArray(discounts) ? discounts : []),
+        [discounts],
+    );
 
     const handleOpenNew = () => {
         setEditingDiscount(null);
@@ -68,186 +82,183 @@ const DiscountTable = () => {
     };
 
     const handleExpire = (record) => {
-        setDiscounts((prev) =>
-            prev.map((item) =>
-                item.key === record.key ? { ...item, status: "Expired" } : item,
-            ),
+        dispatch(
+            updateDiscountApi({
+                ...record,
+                isActive: false,
+            }),
         );
     };
-
-    const handleSaveDiscount = (values) => {
-        const normalizedStatus = dayjs(values.expiry).isBefore(dayjs(), "day")
-            ? "Expired"
-            : values.status;
-        const payload = {
-            coupon: values.coupon,
-            type: values.type,
-            value: Number(values.value),
-            discount:
-                values.type === "Fixed Amount"
-                    ? `QAR ${values.value}`
-                    : `${values.value}%`,
-            applicable: values.applicable,
-            expiry: values.expiry.format("DD MMM YYYY"),
-            expiryDate: values.expiry.format("YYYY-MM-DD"),
-            limit: Number(values.limit),
-            status: normalizedStatus,
-        };
-
-        if (editingDiscount) {
-            setDiscounts((prev) =>
-                prev.map((item) =>
-                    item.key === editingDiscount.key
-                        ? { ...item, ...payload, used: item.used }
-                        : item,
-                ),
-            );
-        } else {
-            setDiscounts((prev) => [
-                ...prev,
-                {
-                    key: String(Date.now()),
-                    used: 0,
-                    ...payload,
-                },
-            ]);
-        }
-
-        setEditingDiscount(null);
-        setOpen(false);
-    };
-
-    const dataSource = useMemo(() => discounts, [discounts]);
 
     const columns = [
         {
             title: "COUPON",
-            dataIndex: "coupon",
-            key: "coupon",
+            dataIndex: "name",
+            key: "name",
             width: 240,
-            render: (coupon, record) => (
-                <div className="discount-coupon-cell">
-                    <div className="discount-coupon-icon">
-                        <PercentageOutlined />
-                    </div>
-
-                    <div>
-                        <div
-                            className={`discount-code ${
-                                record.status === "Expired" ? "muted" : ""
-                            }`}
-                        >
-                            {coupon}
+            render: (name, record) => {
+                const status = getRowStatus(record);
+                return (
+                    <div className="discount-coupon-cell">
+                        <div className="discount-coupon-icon">
+                            <PercentageOutlined />
                         </div>
-                        <div className="discount-subtitle">{record.type}</div>
+
+                        <div>
+                            <div
+                                className={`discount-code ${
+                                    status === "Expired" ? "muted" : ""
+                                }`}
+                            >
+                                {name}
+                            </div>
+                            <div className="discount-subtitle">
+                                {formatDiscountTypeLabel(record.discountType)}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            ),
+                );
+            },
         },
         {
             title: "DISCOUNT",
-            dataIndex: "discount",
-            key: "discount",
+            key: "discountValue",
             width: 120,
-            render: (discount, record) => (
-                <span
-                    className={`discount-value ${
-                        record.status === "Expired" ? "muted" : ""
-                    }`}
-                >
-                    {discount}
-                </span>
-            ),
+            render: (_, record) => {
+                const status = getRowStatus(record);
+                return (
+                    <span
+                        className={`discount-value ${
+                            status === "Expired" ? "muted" : ""
+                        }`}
+                    >
+                        {formatDiscountAmount(record)}
+                    </span>
+                );
+            },
         },
         {
             title: "APPLICABLE TO",
-            dataIndex: "applicable",
-            key: "applicable",
+            dataIndex: "applicableBrands",
+            key: "applicableBrands",
             responsive: ["md"],
-            render: (items) => (
-                <Space wrap size={[6, 6]}>
-                    {items.map((item) => (
-                        <span className="discount-tag" key={item}>
-                            {item}
+            render: (applicableBrands) => {
+                const list = applicableBrands || [];
+                const totalBrands = Array.isArray(brandCatalog)
+                    ? brandCatalog.length
+                    : 0;
+                const coversAllBrands =
+                    totalBrands > 0 && list.length === totalBrands;
+
+                if (coversAllBrands) {
+                    return (
+                        <span className="discount-tag">
+                            All Eligible Product
                         </span>
-                    ))}
-                </Space>
-            ),
+                    );
+                }
+
+                return (
+                    <Space wrap size={[6, 6]}>
+                        {list.map((item) => (
+                            <span
+                                className="discount-tag"
+                                key={item._id || item.brand}
+                            >
+                                {item.brand}
+                            </span>
+                        ))}
+                    </Space>
+                );
+            },
         },
         {
             title: "EXPIRY",
-            dataIndex: "expiry",
-            key: "expiry",
+            key: "expiryDate",
             responsive: ["sm"],
-            render: (expiry, record) => (
-                <span
-                    className={`discount-expiry ${
-                        record.status === "Expired" ? "expired" : ""
-                    }`}
-                >
-                    {expiry}
-                    {record.status === "Expired" && (
-                        <ExclamationCircleOutlined />
-                    )}
-                </span>
-            ),
+            render: (_, record) => {
+                const status = getRowStatus(record);
+                const label = record.expiryDate
+                    ? dayjs(record.expiryDate).format("DD MMM YYYY")
+                    : "—";
+                return (
+                    <span
+                        className={`discount-expiry ${
+                            status === "Expired" ? "expired" : ""
+                        }`}
+                    >
+                        {label}
+                        {status === "Expired" && <ExclamationCircleOutlined />}
+                    </span>
+                );
+            },
         },
         {
             title: "USED / LIMIT",
-            key: "used",
+            key: "usage",
             width: 130,
-            render: (_, record) => (
-                <span className="discount-usage">
-                    {record.used}
-                    <span> / {record.limit}</span>
-                </span>
-            ),
+            render: (_, record) => {
+                const used =
+                    record.timesUsed ?? record.usedCount ?? record.used ?? 0;
+                const limit = record.usageLimit ?? "—";
+                return (
+                    <span className="discount-usage">
+                        {used}
+                        <span> / {limit}</span>
+                    </span>
+                );
+            },
         },
         {
             title: "STATUS",
-            dataIndex: "status",
             key: "status",
             width: 110,
-            render: (status) => (
-                <span
-                    className={
-                        status === "Active"
-                            ? "discount-status active"
-                            : "discount-status expired"
-                    }
-                >
-                    {status}
-                </span>
-            ),
+            render: (_, record) => {
+                const status = getRowStatus(record);
+                const activeClass = status === "Active" ? "active" : "expired";
+                return (
+                    <span className={`discount-status ${activeClass}`}>
+                        {status}
+                    </span>
+                );
+            },
         },
         {
             title: "ACTIONS",
             key: "actions",
             width: 150,
-            render: (_, record) => (
-                <div className="discount-actions">
-                    <Button
-                        size="small"
-                        icon={<EditOutlined />}
-                        onClick={() => handleOpenEdit(record)}
-                    >
-                        {record.status === "Expired" ? "Renew" : "Edit"}
-                    </Button>
-
-                    {record.status !== "Expired" && (
+            render: (_, record) => {
+                const status = getRowStatus(record);
+                return (
+                    <div className="discount-actions">
                         <Button
-                            danger
                             size="small"
-                            icon={<StopOutlined />}
-                            onClick={() => handleExpire(record)}
+                            icon={<EditOutlined />}
+                            onClick={() => handleOpenEdit(record)}
                         >
-                            Expire
+                            {status === "Expired" ? "Renew" : "Edit"}
                         </Button>
-                    )}
-                </div>
-            ),
+
+                        {status !== "Expired" && record.isActive !== false && (
+                            <Button
+                                danger
+                                size="small"
+                                icon={<StopOutlined />}
+                                onClick={() => handleExpire(record)}
+                            >
+                                Deactivate
+                            </Button>
+                        )}
+                    </div>
+                );
+            },
         },
     ];
+
+    const hasMorePages = dataSource.length === limit;
+    const paginationTotal = hasMorePages
+        ? page * limit + 1
+        : (page - 1) * limit + dataSource.length;
 
     return (
         <div className="discount-table-container">
@@ -275,8 +286,19 @@ const DiscountTable = () => {
                 className="discount-table"
                 columns={columns}
                 dataSource={dataSource}
-                rowKey="key"
-                pagination={{ responsive: true }}
+                rowKey="_id"
+                loading={getAllDiscountLoading}
+                pagination={{
+                    responsive: true,
+                    current: page,
+                    pageSize: limit,
+                    total: paginationTotal,
+                    showSizeChanger: true,
+                    onChange: (nextPage, nextLimit) => {
+                        setPage(nextPage);
+                        setLimit(nextLimit);
+                    },
+                }}
                 scroll={{ x: "max-content" }}
             />
 
@@ -286,7 +308,6 @@ const DiscountTable = () => {
                     setOpen(false);
                     setEditingDiscount(null);
                 }}
-                onSave={handleSaveDiscount}
                 editingDiscount={editingDiscount}
             />
         </div>
