@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Button,
+    Checkbox,
     DatePicker,
     Drawer,
     Form,
@@ -11,10 +12,29 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import "./AddDiscount.css";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllBrand } from "../../../Services/slices/model.slice";
+import { addDiscountApi, updateDiscountApi } from "../../../Services/slices/discount.slice";
 
-const AddDiscount = ({ open, onClose, onSave, editingDiscount }) => {
+const AddDiscount = ({ open, onClose, editingDiscount }) => {
+    const { brands } = useSelector((state) => state.model);
+    const dispatch = useDispatch();
     const [form] = Form.useForm();
     const discountType = Form.useWatch("type", form);
+    const [allBrands, setAllBrands] = useState([]);
+    const [selectAllBrands, setSelectAllBrands] = useState(false);
+    useEffect(() => {
+        console.log("Brands in AddDiscount:", brands);
+        if (brands.length === 0) {
+            dispatch(getAllBrand({ limit: "all" }));
+        }
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (brands.length > 0) {
+            setAllBrands([...brands]);
+        }
+    }, [brands]);
 
     useEffect(() => {
         if (!open) {
@@ -23,32 +43,60 @@ const AddDiscount = ({ open, onClose, onSave, editingDiscount }) => {
 
         if (editingDiscount) {
             form.setFieldsValue({
-                coupon: editingDiscount.coupon,
-                type: editingDiscount.type,
-                value: Number(editingDiscount.value),
-                applicable: editingDiscount.applicable,
+                coupon: editingDiscount.name,
+                type: editingDiscount.discountType,
+                value: Number(editingDiscount.discountValue),
+                applicableBrands: (editingDiscount.applicableBrands || []).map(
+                    (b) => b._id,
+                ),
                 expiry: dayjs(editingDiscount.expiryDate),
-                limit: editingDiscount.limit,
-                status: editingDiscount.status,
+                limit: editingDiscount.usageLimit,
+                status: editingDiscount.isActive ? "Active" : "Inactive",
             });
             return;
         }
 
         form.setFieldsValue({
-            type: "Percentage",
+            type: "percentage",
             value: 0,
-            applicable: [],
+            applicableBrands: [],
             limit: 1,
             status: "Active",
         });
     }, [editingDiscount, form, open]);
 
     const handleSubmit = (values) => {
-        onSave({
-            ...values,
-            coupon: values.coupon.trim().toUpperCase(),
+        console.log("Form values on submit:", values);
+        // onSave({
+        //     ...values,
+        //     coupon: values.coupon.trim().toUpperCase(),
+        // });
+        // form.resetFields();
+        let payload = {
+            name: values.coupon.trim().toLowerCase(),
+            discountType: values.type,
+            discountValue: Number(values.value),
+            applicableBrands: values.applicableBrands,
+            expiryDate: values.expiry.format("YYYY-MM-DD"),
+            usageLimit: Number(values.limit),
+            isActive: values.status === "Active" ? true : false,
+        };
+        if (!editingDiscount) { 
+            dispatch(addDiscountApi(payload));
+        }
+        else{
+            payload._id = editingDiscount._id;
+            dispatch(updateDiscountApi(payload));
+        }
+        onClose();
+    };
+
+    const handleBrandChange = (value) => {
+        form.setFieldsValue({
+            applicableBrands: value,
         });
-        form.resetFields();
+
+        setSelectAllBrands(value.length === allBrands.length);
     };
 
     return (
@@ -83,48 +131,87 @@ const AddDiscount = ({ open, onClose, onSave, editingDiscount }) => {
                 <Form.Item
                     label="Discount Type"
                     name="type"
-                    rules={[{ required: true, message: "Select discount type" }]}
+                    rules={[
+                        { required: true, message: "Select discount type" },
+                    ]}
                 >
                     <Select
                         options={[
-                            { label: "Percentage", value: "Percentage" },
-                            { label: "Fixed Amount", value: "Fixed Amount" },
+                            { label: "Percentage", value: "percentage" },
+                            { label: "Fixed Amount", value: "fixed_amount" },
                         ]}
                     />
                 </Form.Item>
 
                 <Form.Item
                     label={
-                        discountType === "Fixed Amount"
+                        discountType === "fixed_amount"
                             ? "Discount Amount (QAR)"
                             : "Discount Value (%)"
                     }
                     name="value"
-                    rules={[{ required: true, message: "Enter discount value" }]}
+                    rules={[
+                        { required: true, message: "Enter discount value" },
+                    ]}
                 >
                     <InputNumber
                         className="discount-input-number"
                         min={1}
-                        max={discountType === "Fixed Amount" ? 99999 : 100}
+                        max={discountType === "fixed_amount" ? 99999 : 100}
                         precision={0}
                     />
                 </Form.Item>
 
-                <Form.Item
-                    label="Applicable To"
-                    name="applicable"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Add at least one product/category",
-                        },
-                    ]}
-                >
-                    <Select
-                        mode="tags"
-                        tokenSeparators={[","]}
-                        placeholder="Type and press Enter (e.g. Samsung, Accessories)"
-                    />
+                <Form.Item label="Applicable To">
+                    <Checkbox
+                        checked={selectAllBrands}
+                        onChange={(e) => {
+                            const checked = e.target.checked;
+
+                            setSelectAllBrands(checked);
+
+                            if (checked) {
+                                form.setFieldsValue({
+                                    applicableBrands: allBrands.map(
+                                        (brand) => brand._id,
+                                    ),
+                                });
+                            } else {
+                                form.setFieldsValue({
+                                    applicableBrands: [],
+                                });
+                            }
+                        }}
+                    >
+                        Select All Brands
+                    </Checkbox>
+
+                    <Form.Item
+                        name="applicableBrands"
+                        noStyle
+                        rules={[
+                            {
+                                required: true,
+                                message: "Select at least one brand",
+                            },
+                        ]}
+                    >
+                        <Select
+                            mode="multiple"
+                            style={{
+                                width: "100%",
+                                marginTop: 10,
+                            }}
+                            placeholder="Select brands"
+                            options={allBrands.map((brand) => ({
+                                label:
+                                    brand.brand[0].toUpperCase() +
+                                    brand.brand.slice(1),
+                                value: brand._id,
+                            }))}
+                            onChange={handleBrandChange}
+                        />
+                    </Form.Item>
                 </Form.Item>
 
                 <Form.Item
@@ -134,7 +221,10 @@ const AddDiscount = ({ open, onClose, onSave, editingDiscount }) => {
                 >
                     <DatePicker
                         className="discount-date-picker"
-                        format="DD MMM YYYY"
+                        format="YYYY-MM-DD"
+                        disabledDate={(current) =>
+                            current && current < dayjs().startOf("day")
+                        }
                     />
                 </Form.Item>
 
@@ -158,7 +248,7 @@ const AddDiscount = ({ open, onClose, onSave, editingDiscount }) => {
                     <Radio.Group
                         options={[
                             { label: "Active", value: "Active" },
-                            { label: "Expired", value: "Expired" },
+                            { label: "Inactive", value: "Inactive" },
                         ]}
                     />
                 </Form.Item>
