@@ -283,6 +283,26 @@
     gap: 12px;
 }
 
+.coupon-total-row {
+    color: #087f5b;
+    font-weight: 600;
+}
+
+.primary-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.primary-btn:disabled,
+.coupon-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 @media (max-width: 575px) {
     .summary-card {
         padding: 14px;
@@ -328,4 +348,76 @@
         letter-spacing: 0.1em;
         padding: 9px 10px !important;
     }
+}
+
+/* Sale success modal (Ant Design) — aligned with summary card look */
+.sale-success-modal .ant-modal-content {
+    border-radius: 14px;
+    padding: 0;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.sale-success-modal .ant-modal-header {
+    display: none;
+}
+
+.sale-success-modal .ant-modal-close {
+    top: 14px;
+    inset-inline-end: 14px;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    border-radius: 8px;
+}
+
+.sale-success-modal .ant-modal-close:hover {
+    background: #f3f4f6;
+}
+
+.sale-success-modal__close {
+    font-size: 15px;
+    color: #6b7280;
+}
+
+.sale-success-modal .ant-modal-body {
+    padding: 36px 28px 28px;
+}
+
+.sale-success-modal__content {
+    text-align: center;
+}
+
+.sale-success-modal__icon {
+    display: block;
+    margin: 0 auto 16px;
+    font-size: 56px;
+    color: #52c41a;
+}
+
+.sale-success-modal__title {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.sale-success-modal__subtitle {
+    margin: 0 0 24px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6b7280;
+}
+
+.sale-success-modal__print.ant-btn-primary {
+    border-radius: 10px;
+    height: 44px;
+    font-weight: 600;
+    background: var(--primary, #1677ff);
+    border-color: var(--primary, #1677ff);
+}
+
+.sale-success-modal__print.ant-btn-primary:hover {
+    background: var(--primary, #1677ff);
+    border-color: var(--primary, #1677ff);
+    filter: brightness(1.05);
 }

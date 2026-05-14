@@ -13,6 +13,7 @@ import ProductPage from "../Pages/Products/ProductPage";
 import SalesPage from "../Pages/SalesPage/SalesPage";
 import SalesHistory from "../Pages/SalesHistory/SalesHistory";
 import Discount from "../Pages/Discounts/Discount";
+import BusinessSettings from "../Pages/BusinessSettings/BusinessSettings";
 export const Router = createBrowserRouter([
     {
         path: "/",
@@ -71,6 +72,10 @@ export const Router = createBrowserRouter([
             {
                 path: "discount",
                 element: <Discount></Discount>
+            },
+            {
+                path: "business-settings",
+                element: <BusinessSettings></BusinessSettings>
             }
            
         ]

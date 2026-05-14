@@ -1,0 +1,246 @@
+.business-settings-page {
+    width: 100%;
+    min-width: 0;
+}
+
+.business-settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.business-settings-header h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 22px;
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+.business-settings-header p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.settings-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    min-width: 0;
+    margin-bottom: 16px;
+}
+
+.settings-panel:last-child {
+    margin-bottom: 0;
+}
+
+.settings-section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    min-width: 0;
+}
+
+.settings-section-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 8px;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.settings-section-icon-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.settings-section-header h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+.settings-section-header h3.settings-danger-title {
+    color: #dc2626;
+}
+
+.settings-section-header p,
+.settings-toggle-row p,
+.settings-export-row p,
+.settings-danger-action p {
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.settings-form .ant-form-item {
+    margin-bottom: 14px;
+}
+
+.settings-form .ant-form-item-label {
+    padding-bottom: 4px;
+}
+
+.settings-form .ant-form-item-label > label {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.settings-form .ant-input,
+.settings-form .ant-input-affix-wrapper,
+.settings-form .ant-select-selector {
+    border-radius: 8px !important;
+}
+
+.settings-list {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.settings-toggle-row,
+.settings-export-row,
+.settings-danger-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.settings-toggle-row {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-list .settings-toggle-row {
+    padding: 14px;
+}
+
+.settings-toggle-row:last-child,
+.settings-toggle-row-last {
+    border-bottom: 0;
+}
+
+.settings-toggle-row h4,
+.settings-export-row h4,
+.settings-danger-action h4 {
+    margin: 0;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.3;
+    font-weight: 700;
+}
+
+.settings-toggle-row .ant-switch,
+.settings-danger-action .ant-btn {
+    flex: 0 0 auto;
+}
+
+.settings-export-list {
+    display: grid;
+    gap: 10px;
+}
+
+.settings-export-row {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+}
+
+.settings-export-actions {
+    flex: 0 0 auto;
+}
+
+.settings-alert {
+    margin-top: 12px;
+    border-radius: 8px;
+}
+
+.settings-danger-panel {
+    border-color: #fecaca;
+}
+
+.settings-danger-action {
+    padding: 12px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fef2f2;
+}
+
+.settings-danger-action h4 {
+    color: #dc2626;
+}
+
+@media (max-width: 767px) {
+    .business-settings-header {
+        flex-direction: column;
+    }
+
+    .business-settings-header .ant-btn {
+        width: 100%;
+        min-height: 38px;
+    }
+
+    .business-settings-header h2 {
+        font-size: 20px;
+    }
+
+    .settings-panel {
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .settings-section-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        font-size: 16px;
+    }
+
+    .settings-section-header h3 {
+        font-size: 16px;
+    }
+
+    .settings-toggle-row,
+    .settings-export-row,
+    .settings-danger-action {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .settings-toggle-row {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .settings-export-actions,
+    .settings-export-actions .ant-space-item,
+    .settings-export-actions .ant-btn,
+    .settings-danger-action .ant-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .settings-toggle-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

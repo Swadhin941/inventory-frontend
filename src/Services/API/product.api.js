@@ -23,3 +23,15 @@ export const getProductStatisticsApiService = async()=>{
     const data = await response.data;
     return data;
 }
+
+export const validateCouponApiService = async(payload)=>{
+    const response = await axiosSecure.post("/product/check-coupon-validity", payload);
+    const data = await response.data;
+    return data;
+}
+
+export const addPurchaseProductApiService = async(payload)=>{
+    const response = await axiosSecure.post("/purchase/add-purchase", payload);
+    const data = await response.data;
+    return data;
+}

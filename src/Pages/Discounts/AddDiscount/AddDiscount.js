@@ -136,6 +136,7 @@ const AddDiscount = ({ open, onClose, editingDiscount }) => {
                     ]}
                 >
                     <Select
+                        disabled={!!editingDiscount}
                         options={[
                             { label: "Percentage", value: "percentage" },
                             { label: "Fixed Amount", value: "fixed_amount" },
@@ -155,6 +156,7 @@ const AddDiscount = ({ open, onClose, editingDiscount }) => {
                     ]}
                 >
                     <InputNumber
+                        disabled={!!editingDiscount}
                         className="discount-input-number"
                         min={1}
                         max={discountType === "fixed_amount" ? 99999 : 100}

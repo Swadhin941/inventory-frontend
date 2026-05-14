@@ -6,12 +6,19 @@ import "./SalesPage.css";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProductsApi } from "../../Services/slices/product.slice";
 
+const initialCustomer = {
+    customerName: "",
+    phone: "",
+    email: "",
+};
+
 const SalesPage = () => {
     const dispatch = useDispatch();
     const [page] = useState(1);
     const [limit] = useState(10);
     const [search, setSearch] = useState("");
     const [cart, setCart] = useState([]);
+    const [customer, setCustomer] = useState(initialCustomer);
     const { products } = useSelector((state) => state.product);
 
     useEffect(() => {
@@ -19,6 +26,13 @@ const SalesPage = () => {
     }, [dispatch, page, limit]);
 
     const getProductId = (product) => product._id || product.id;
+
+    const createCartItem = (product) => ({
+        ...product,
+        warranty: product.hasWarranty ?? product.warranty ?? false,
+        warrantyPeriod: Number(product.warrantyPeriod ?? 0),
+        qty: 1,
+    });
 
     const addToCart = (product) => {
         const productId = getProductId(product);
@@ -42,7 +56,7 @@ const SalesPage = () => {
                 );
             }
 
-            return [...currentCart, { ...product, qty: 1 }];
+            return [...currentCart, createCartItem(product)];
         });
     };
 
@@ -80,6 +94,15 @@ const SalesPage = () => {
         );
     };
 
+    const handleCustomerChange = (field, value) => {
+        setCustomer((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handlePlaceOrder = (_payload) => {
+        setCart([]);
+        setCustomer(initialCustomer);
+    };
+
     return (
         <div className="container-fluid sales-page">
             <div className="row sales-layout">
@@ -87,7 +110,10 @@ const SalesPage = () => {
                 {/* LEFT SIDE */}
                 <div className="col-12 col-lg-8">
                     <div className="mb-3">
-                        <CustomerForm />
+                        <CustomerForm
+                            customer={customer}
+                            onCustomerChange={handleCustomerChange}
+                        />
                     </div>
 
                     <ProductGrid
@@ -103,9 +129,11 @@ const SalesPage = () => {
                 <div className="col-12 col-lg-4 sales-summary-column">
                     <OrderSummary
                         cart={cart}
+                        customer={customer}
                         increaseQty={increaseQty}
                         decreaseQty={decreaseQty}
                         removeItem={removeItem}
+                        onPlaceOrder={handlePlaceOrder}
                     />
                 </div>
 

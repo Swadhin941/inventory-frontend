@@ -5,6 +5,7 @@ import brandReducer from "../slices/brand.slice";
 import modelReducer from "../slices/model.slice";
 import productReducer from "../slices/product.slice";
 import discountReducer from "../slices/discount.slice";
+import salesReducer from "../slices/sales.slice";
 
 const mainStore = configureStore({
     reducer: {
@@ -14,6 +15,7 @@ const mainStore = configureStore({
         model : modelReducer,
         product: productReducer,
         discount: discountReducer,
+        sales: salesReducer
     },
 });
 

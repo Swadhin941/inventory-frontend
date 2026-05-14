@@ -1,9 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
     addProductApiService,
+    addPurchaseProductApiService,
     getAllProductsApiService,
     getProductStatisticsApiService,
     updateProductApiService,
+    validateCouponApiService,
 } from "../API/product.api";
 import toast from "react-hot-toast";
 
@@ -17,6 +19,11 @@ const initialState = {
     statistics: null,
     statsLoader: false,
     loadMoreProductLoading: false,
+    discountInfo: null,
+    couponValidatorLoading: false,
+    couponValid: false,
+    purchaseProduct: null,
+    purchaseProductLoading: false,
 };
 
 export const addProductApi = createAsyncThunk(
@@ -91,12 +98,50 @@ export const loadMoreProductsApi = createAsyncThunk(
         } catch (error) {
             return rejectWithValue(error);
         }
-    }
+    },
+);
+
+export const validateCouponApi = createAsyncThunk(
+    "product/validateCouponApi",
+    async (payload, { rejectWithValue }) => {
+        try {
+            const response = await validateCouponApiService(payload);
+            if (!response.success) {
+                return rejectWithValue(response);
+            }
+            return response;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    },
+);
+
+// Add purchase product API
+export const addPurchaseProductApi = createAsyncThunk(
+    "product/addPurchaseProductApi",
+    async (payload, { rejectWithValue }) => {
+        try {
+            const response = await addPurchaseProductApiService(payload);
+            if (!response.success) {
+                return rejectWithValue(response);
+            }
+            return response;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    },
 );
 
 const productSlice = createSlice({
     name: "product",
     initialState,
+    reducers: {
+        clearCouponState: (state) => {
+            state.discountInfo = null;
+            state.couponValidatorLoading = false;
+            state.couponValid = false;
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(addProductApi.pending, (state, action) => {
             state.addProductLoading = true;
@@ -152,7 +197,6 @@ const productSlice = createSlice({
             state.error = action.payload;
         });
 
-
         // Get product statistics
         builder.addCase(getProductStatisticsApi.pending, (state, action) => {
             state.getProductStatisticsLoading = true;
@@ -185,7 +229,62 @@ const productSlice = createSlice({
             state.loadMoreProductLoading = false;
             state.error = action.payload;
         });
+
+        // Check coupon validity
+        builder.addCase(validateCouponApi.pending, (state, action) => {
+            state.couponValidatorLoading = true;
+            state.couponValid = false;
+            state.discountInfo = null;
+            state.error = null;
+        });
+        builder.addCase(validateCouponApi.fulfilled, (state, action) => {
+            state.couponValidatorLoading = false;
+            state.couponValid = true;
+            state.discountInfo = action.payload.body;
+            if (action.payload.message) {
+                toast.success(action.payload.message);
+            }
+        });
+        builder.addCase(validateCouponApi.rejected, (state, action) => {
+            toast.error(action.payload?.message || "Unable to apply coupon");
+            state.couponValidatorLoading = false;
+            state.couponValid = false;
+            state.discountInfo = null;
+            state.error = action.payload;
+        });
+
+        // Add purchase product reducers
+        builder.addCase(addPurchaseProductApi.pending, (state, action) => {
+            state.purchaseProductLoading = true;
+            state.error = null;
+        });
+        builder.addCase(addPurchaseProductApi.fulfilled, (state, action) => {
+            toast.success(action.payload.message);
+
+            state.purchaseProductLoading = false;
+
+            state.purchaseProduct = action.payload.body;
+
+            // update product stock in UI instantly
+            const purchasedItems = action.payload.body.lineItems || [];
+
+            purchasedItems.forEach((item) => {
+                const productIndex = state.products.findIndex(
+                    (product) => product._id === item.productId,
+                );
+
+                if (productIndex !== -1) {
+                    state.products[productIndex].stock -= item.qty;
+                }
+            });
+        });
+        builder.addCase(addPurchaseProductApi.rejected, (state, action) => {
+            toast.error(action.payload.message);
+            state.purchaseProductLoading = false;
+            state.error = action.payload;
+        });
     },
 });
 
+export const { clearCouponState } = productSlice.actions;
 export default productSlice.reducer;
