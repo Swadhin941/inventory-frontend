@@ -58,9 +58,9 @@ const DiscountTable = () => {
     }, [dispatch, brandCatalog?.length]);
 
     useEffect(() => {
-        if (discounts.length === 0) {
+        // if (discounts.length === 0) {
         dispatch(getAllDiscountApi({ page, limit }));
-        }
+        // }
     }, [dispatch, page, limit]);
 
     const [open, setOpen] = useState(false);
