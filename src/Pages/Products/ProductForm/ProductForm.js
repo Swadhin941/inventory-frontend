@@ -25,6 +25,10 @@ import {
 } from "../../../Services/slices/product.slice";
 import Spinner from "../../../Components/Spinner/Spinner";
 import toast from "react-hot-toast";
+import {
+    formatMoney,
+    getCurrencyVatSettings,
+} from "../../../Utils/businessSettings";
 
 const descriptionEditorModules = {
     toolbar: [
@@ -56,6 +60,8 @@ const ProductForm = ({ product, onClose }) => {
     const { products, updateProductLoading } = useSelector(
         (state) => state.product,
     );
+    const { businessInfo } = useSelector((state) => state.business);
+    const { currencySymbol } = getCurrencyVatSettings(businessInfo);
     const dispatch = useDispatch();
     useEffect(() => {
         if (product) {
@@ -69,10 +75,7 @@ const ProductForm = ({ product, onClose }) => {
                 cost: product.purchasePrice,
                 price: product.sellingPrice,
                 discount: product.hasDiscount ?? false,
-                discountType:
-                    product.discountType === "fixed_amount"
-                        ? "fixed"
-                        : product.discountType,
+                discountType: product.discountType,
                 discountValue: product.discountValue,
                 hasWarranty: product.hasWarranty ?? false,
                 warranty: product.warrantyPeriod || 0,
@@ -166,10 +169,7 @@ const ProductForm = ({ product, onClose }) => {
             purchasePrice: parseInt(values.cost),
             sellingPrice: parseInt(values.price),
             hasDiscount: values.discount ?? false,
-            discountType:
-                values.discountType === "fixed"
-                    ? "fixed_amount"
-                    : values.discountType,
+            discountType: values.discountType,
             discountValue: parseInt(values.discountValue),
             hasWarranty: values.hasWarranty ?? false,
             warrantyPeriod: parseInt(values.warranty) || 0,
@@ -488,7 +488,7 @@ const ProductForm = ({ product, onClose }) => {
                                                             Percentage (%)
                                                         </Select.Option>
                                                         <Select.Option value="fixed_amount">
-                                                            Fixed Amount (QAR)
+                                                            Fixed Amount ({currencySymbol})
                                                         </Select.Option>
                                                     </Select>
                                                 </Form.Item>
@@ -541,7 +541,7 @@ const ProductForm = ({ product, onClose }) => {
                                                     Profit per unit
                                                 </p>
                                                 <h3 className="profit-value">
-                                                    QAR {profit}
+                                                    {formatMoney(profit, businessInfo)}
                                                 </h3>
                                             </div>
                                         </div>

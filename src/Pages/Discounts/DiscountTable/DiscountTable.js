@@ -16,6 +16,7 @@ import {
     updateDiscountApi,
 } from "../../../Services/slices/discount.slice";
 import { getAllBrand } from "../../../Services/slices/model.slice";
+import { formatMoney } from "../../../Utils/businessSettings";
 
 const formatDiscountTypeLabel = (discountType) => {
     if (discountType === "fixed_amount") return "Fixed Amount";
@@ -23,9 +24,9 @@ const formatDiscountTypeLabel = (discountType) => {
     return discountType ? String(discountType).replace(/_/g, " ") : "—";
 };
 
-const formatDiscountAmount = (record) => {
+const formatDiscountAmount = (record, businessInfo) => {
     if (record.discountType === "fixed_amount") {
-        return `QAR ${record.discountValue}`;
+        return formatMoney(record.discountValue, businessInfo);
     }
     if (record.discountType === "percentage") {
         return `${record.discountValue}%`;
@@ -47,6 +48,7 @@ const DiscountTable = () => {
         (state) => state.discount,
     );
     const { brands: brandCatalog } = useSelector((state) => state.model);
+    const { businessInfo } = useSelector((state) => state.business);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const dispatch = useDispatch();
@@ -132,7 +134,7 @@ const DiscountTable = () => {
                             status === "Expired" ? "muted" : ""
                         }`}
                     >
-                        {formatDiscountAmount(record)}
+                        {formatDiscountAmount(record, businessInfo)}
                     </span>
                 );
             },

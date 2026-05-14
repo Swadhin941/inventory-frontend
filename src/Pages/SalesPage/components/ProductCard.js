@@ -1,12 +1,13 @@
-import React, { use } from "react";
+import React from "react";
 import "./ProductCard.css";
 import { useSelector } from "react-redux";
+import { formatMoney } from "../../../Utils/businessSettings";
 
 const ProductCard = ({ item, addToCart, cartQty = 0 }) => {
     const isSelected = cartQty > 0;
     const isOutOfStock = item.stock === 0;
     const reachedStockLimit = isSelected && cartQty >= item.stock;
-    const { products} = useSelector((state) => state.product);
+    const { businessInfo } = useSelector((state) => state.business);
 
     return (
         <div className={`product-card ${isSelected ? "selected" : ""}`}>
@@ -19,7 +20,7 @@ const ProductCard = ({ item, addToCart, cartQty = 0 }) => {
                 <p className="stock">{item.stock} in stock</p>
             )}
 
-            <h3 className="price">QAR {item.finalPrice}</h3>
+            <h3 className="price">{formatMoney(item.finalPrice, businessInfo)}</h3>
 
             {isOutOfStock ? (
                 <button className="btn-disabled">Unavailable</button>
