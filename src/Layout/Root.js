@@ -1,15 +1,14 @@
 import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
-    UploadOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu } from "antd";
 import React, { useState } from "react";
 import "./Root.css";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { pathDeclaration } from "./Path";
+import { useSelector } from "react-redux";
+import { getBusinessSettings } from "../Utils/businessSettings";
 
 const { Header, Sider, Content } = Layout;
 
@@ -17,6 +16,15 @@ const Root = () => {
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { businessInfo } = useSelector((state) => state.business);
+    const { storeInformation } = getBusinessSettings(businessInfo);
+    const storeName = storeInformation.storeName?.trim() || "QuddusShop";
+    const storeAddress = storeInformation.address?.trim() || "Doha, Qatar";
+    const logoUrl =
+        storeInformation.logo ||
+        storeInformation.logoUrl ||
+        storeInformation.storeLogo;
+    const logoInitial = storeName.charAt(0).toUpperCase();
     const handleNavigationClick = (e) => {
         console.log(e);
         const findPath = pathDeclaration.find(
@@ -38,13 +46,17 @@ const Root = () => {
             >
                 <div className={`brand-card ${collapsed ? "collapsed" : ""}`}>
                     <div className="logo">
-                        <span>Q</span>
+                        {logoUrl ? (
+                            <img src={logoUrl} alt={storeName} />
+                        ) : (
+                            <span>{logoInitial}</span>
+                        )}
                     </div>
 
                     {!collapsed && (
                         <div className="brand-text">
-                            <h1>QuddusShop</h1>
-                            <span className="location">Doha, Qatar</span>
+                            <h1>{storeName}</h1>
+                            <span className="location">{storeAddress}</span>
                         </div>
                     )}
                 </div>

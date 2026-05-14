@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     Alert,
     Button,
     Col,
     Form,
     Input,
+    InputNumber,
     Row,
     Select,
     Space,
@@ -19,28 +20,72 @@ import {
     ShopOutlined,
     WarningOutlined,
 } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import "./BusinessSettings.css";
+import {
+    addBusinessInfoApi,
+    getBusinessInfoApi,
+    updateBusinessInfoApi,
+} from "../../Services/slices/business.slice";
+import {
+    defaultBusinessSettings,
+    getBusinessSettings,
+} from "../../Utils/businessSettings";
+
+const currencies = [
+    {
+        label: "QAR - Qatari Riyal",
+        value: "QAR",
+        currencyName: "Qatari Riyal",
+        currencySymbol: "QAR",
+    },
+    {
+        label: "USD - US Dollar",
+        value: "USD",
+        currencyName: "US Dollar",
+        currencySymbol: "$",
+    },
+    {
+        label: "BDT - Bangladeshi Taka",
+        value: "BDT",
+        currencyName: "Bangladeshi Taka",
+        currencySymbol: "Tk",
+    },
+    {
+        label: "SAR - Saudi Riyal",
+        value: "SAR",
+        currencyName: "Saudi Riyal",
+        currencySymbol: "SAR",
+    },
+    {
+        label: "AED - UAE Dirham",
+        value: "AED",
+        currencyName: "UAE Dirham",
+        currencySymbol: "AED",
+    },
+];
 
 const receiptSettings = [
     {
         title: "Show Logo on Receipt",
-        desc: "Print the QuddusShop logo on every receipt.",
-        checked: true,
+        desc: "Print the store logo on every receipt.",
+        name: ["receiptSettings", "showLogoOnReceipt"],
     },
     {
         title: "Show Staff Name",
         desc: "Display the staff member who processed the sale.",
-        checked: true,
+        name: ["receiptSettings", "showStaffName"],
     },
     {
         title: "Show VAT Breakdown",
-        desc: "Itemize 5% VAT separately on the receipt.",
-        checked: true,
+        desc: "Itemize VAT separately on the receipt.",
+        name: ["receiptSettings", "showVatBreakdown"],
     },
     {
         title: "Print Footer Message",
         desc: "Show a custom thank-you note at the bottom.",
-        checked: false,
+        name: ["receiptSettings", "printFooterMessage"],
     },
 ];
 
@@ -48,14 +93,17 @@ const exportItems = [
     {
         title: "Export Sales History",
         desc: "All transactions with customer, staff, and payment data.",
+        name: ["backupExport", "enableSalesExport"],
     },
     {
         title: "Export Product List",
         desc: "All products with pricing, stock, and brand info.",
+        name: ["backupExport", "enableProductExport"],
     },
     {
         title: "Export Payment Records",
         desc: "All payment logs with method, timestamps, and amounts.",
+        name: ["backupExport", "enablePaymentExport"],
     },
 ];
 
@@ -76,15 +124,109 @@ const SectionHeader = ({ icon, title, description, danger }) => (
 );
 
 const BusinessSettings = () => {
+    const [form] = Form.useForm();
+    const dispatch = useDispatch();
+    const { businessInfo, businessInfoLoader } = useSelector(
+        (state) => state.business,
+    );
+    const settings = getBusinessSettings(businessInfo);
+    const existingId = businessInfo?._id;
+
+    useEffect(() => {
+        dispatch(getBusinessInfoApi());
+    }, [dispatch]);
+
+   useEffect(() => {
+       if (businessInfo) {
+           form.setFieldsValue({
+               _id: businessInfo._id,
+
+               ...getBusinessSettings(businessInfo),
+           });
+       }
+   }, [form, businessInfo]);
+
+    const handleCurrencyChange = (currencyCode) => {
+        const selectedCurrency = currencies.find(
+            (currency) => currency.value === currencyCode,
+        );
+
+        if (selectedCurrency) {
+            form.setFieldsValue({
+                currencyVat: {
+                    currency: selectedCurrency.value,
+                    currencyName: selectedCurrency.currencyName,
+                    currencySymbol: selectedCurrency.currencySymbol,
+                },
+            });
+        }
+    };
+
+    const handleSave = async (values) => {
+        const payload = {
+            ...defaultBusinessSettings,
+            ...settings,
+            ...values,
+            storeInformation: {
+                ...settings.storeInformation,
+                ...values.storeInformation,
+                storeEmail: values.storeInformation.storeEmail.toLowerCase(),
+            },
+            currencyVat: {
+                ...settings.currencyVat,
+                ...values.currencyVat,
+                vatRate: Number(values.currencyVat.vatRate),
+                decimalPlaces: Number(values.currencyVat.decimalPlaces),
+            },
+            receiptSettings: {
+                ...settings.receiptSettings,
+                ...values.receiptSettings,
+            },
+            backupExport: {
+                ...settings.backupExport,
+                ...values.backupExport,
+            },
+            isActive: values.isActive ?? true,
+        };
+
+        if (existingId) {
+            payload._id = existingId;
+        }
+
+        try {
+            if (existingId) {
+                await dispatch(updateBusinessInfoApi(payload)).unwrap();
+            } else {
+                await dispatch(addBusinessInfoApi(payload)).unwrap();
+            }
+            toast.success("Business settings saved");
+        } catch (_error) {
+            toast.error("Could not save business settings");
+        }
+    };
+
     return (
-        <div className="business-settings-page">
+        <Form
+            form={form}
+            layout="vertical"
+            className="business-settings-page"
+            initialValues={defaultBusinessSettings}
+            onFinish={handleSave}
+        >
             <div className="business-settings-header">
                 <div>
                     <h2>Business Settings</h2>
-                    <p>Manage store details, receipts, currency, and exports.</p>
+                    <p>
+                        Manage store details, receipts, currency, and exports.
+                    </p>
                 </div>
 
-                <Button type="primary" icon={<SaveOutlined />}>
+                <Button
+                    type="primary"
+                    icon={<SaveOutlined />}
+                    htmlType="submit"
+                    loading={businessInfoLoader}
+                >
                     Save Changes
                 </Button>
             </div>
@@ -98,41 +240,104 @@ const BusinessSettings = () => {
                             description="Your store details appear on receipts and exports."
                         />
 
-                        <Form layout="vertical" className="settings-form">
-                            <Form.Item label="Store Name">
-                                <Input defaultValue="QuddusShop" />
+                        <div className="settings-form">
+                            <Form.Item
+                                label="Store Name"
+                                name={["storeInformation", "storeName"]}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Enter store name",
+                                    },
+                                ]}
+                            >
+                                <Input />
                             </Form.Item>
 
-                            <Form.Item label="Owner Name">
-                                <Input defaultValue="Abdul Quddus" />
+                            <Form.Item
+                                label="Owner Name"
+                                name={["storeInformation", "ownerName"]}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Enter owner name",
+                                    },
+                                ]}
+                            >
+                                <Input />
                             </Form.Item>
 
-                            <Form.Item label="Address">
+                            <Form.Item
+                                label="Address"
+                                name={["storeInformation", "address"]}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Enter address",
+                                    },
+                                ]}
+                            >
                                 <Input.TextArea
                                     rows={3}
-                                    defaultValue={`Al Rayyan Road, Doha Mall, Shop #42
-Doha, Qatar`}
+                                    style={{
+                                        minHeight: 60,
+                                    }}
                                 />
                             </Form.Item>
 
                             <Row gutter={12}>
                                 <Col xs={24} sm={12}>
-                                    <Form.Item label="Tax / CR Number">
-                                        <Input defaultValue="QA-2024-00831" />
+                                    <Form.Item
+                                        label="Tax / CR Number"
+                                        name={[
+                                            "storeInformation",
+                                            "taxCrNumber",
+                                        ]}
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message:
+                                                    "Enter tax or CR number",
+                                            },
+                                        ]}
+                                    >
+                                        <Input />
                                     </Form.Item>
                                 </Col>
 
                                 <Col xs={24} sm={12}>
-                                    <Form.Item label="Phone">
-                                        <Input defaultValue="+974 4412 0088" />
+                                    <Form.Item
+                                        label="Phone"
+                                        name={["storeInformation", "phone"]}
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: "Enter phone",
+                                            },
+                                        ]}
+                                    >
+                                        <Input />
                                     </Form.Item>
                                 </Col>
                             </Row>
 
-                            <Form.Item label="Store Email">
-                                <Input defaultValue="info@quddusshop.qa" />
+                            <Form.Item
+                                label="Store Email"
+                                name={["storeInformation", "storeEmail"]}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Enter store email",
+                                    },
+                                    {
+                                        type: "email",
+                                        message: "Enter a valid email",
+                                    },
+                                ]}
+                            >
+                                <Input />
                             </Form.Item>
-                        </Form>
+                        </div>
                     </div>
 
                     <div className="settings-panel">
@@ -144,16 +349,39 @@ Doha, Qatar`}
 
                         <div className="settings-list">
                             {receiptSettings.map((item) => (
-                                <div className="settings-toggle-row" key={item.title}>
+                                <div
+                                    className="settings-toggle-row"
+                                    key={item.title}
+                                >
                                     <div>
                                         <h4>{item.title}</h4>
                                         <p>{item.desc}</p>
                                     </div>
 
-                                    <Switch defaultChecked={item.checked} />
+                                    <Form.Item
+                                        name={item.name}
+                                        valuePropName="checked"
+                                        noStyle
+                                    >
+                                        <Switch />
+                                    </Form.Item>
                                 </div>
                             ))}
                         </div>
+
+                        <Form.Item
+                            className="settings-footer-message"
+                            label="Footer Message"
+                            name={["receiptSettings", "footerMessage"]}
+                        >
+                            <Input.TextArea
+                                rows={2}
+                                size="small"
+                                style={{
+                                    maxHeight: 60,
+                                }}
+                            />
+                        </Form.Item>
                     </div>
                 </Col>
 
@@ -165,49 +393,90 @@ Doha, Qatar`}
                             description="Applies across all transactions and exports."
                         />
 
-                        <Form layout="vertical" className="settings-form">
+                        <div className="settings-form">
                             <Row gutter={12}>
                                 <Col xs={24} sm={12}>
-                                    <Form.Item label="Currency">
+                                    <Form.Item
+                                        label="Currency"
+                                        name={["currencyVat", "currency"]}
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: "Select currency",
+                                            },
+                                        ]}
+                                    >
                                         <Select
-                                            defaultValue="qar"
-                                            options={[
-                                                {
-                                                    label: "QAR - Qatari Riyal",
-                                                    value: "qar",
-                                                },
-                                            ]}
+                                            options={currencies}
+                                            onChange={handleCurrencyChange}
                                         />
                                     </Form.Item>
                                 </Col>
 
                                 <Col xs={24} sm={12}>
-                                    <Form.Item label="Currency Symbol">
-                                        <Input defaultValue="QAR" />
+                                    <Form.Item
+                                        label="Currency Symbol"
+                                        name={["currencyVat", "currencySymbol"]}
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message:
+                                                    "Enter currency symbol",
+                                            },
+                                        ]}
+                                    >
+                                        <Input />
                                     </Form.Item>
                                 </Col>
                             </Row>
+
+                            <Form.Item
+                                hidden
+                                name={["currencyVat", "currencyName"]}
+                            >
+                                <Input />
+                            </Form.Item>
 
                             <Row gutter={12}>
                                 <Col xs={24} sm={12}>
                                     <Form.Item
                                         label="VAT Rate (%)"
-                                        extra="Qatar standard VAT is 5%"
+                                        name={["currencyVat", "vatRate"]}
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: "Enter VAT rate",
+                                            },
+                                        ]}
                                     >
-                                        <Input defaultValue="5" />
+                                        <InputNumber
+                                            min={0}
+                                            max={100}
+                                            precision={2}
+                                            className="settings-number-input"
+                                        />
                                     </Form.Item>
                                 </Col>
 
                                 <Col xs={24} sm={12}>
-                                    <Form.Item label="Decimal Places">
+                                    <Form.Item
+                                        label="Decimal Places"
+                                        name={["currencyVat", "decimalPlaces"]}
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message:
+                                                    "Select decimal places",
+                                            },
+                                        ]}
+                                    >
                                         <Select
-                                            defaultValue={2}
-                                            options={[
-                                                {
-                                                    label: "2 decimal places (100.00)",
-                                                    value: 2,
-                                                },
-                                            ]}
+                                            options={[0, 1, 2, 3, 4].map(
+                                                (value) => ({
+                                                    label: `${value} decimal places`,
+                                                    value,
+                                                }),
+                                            )}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -222,30 +491,45 @@ Doha, Qatar`}
                                     </p>
                                 </div>
 
-                                <Switch defaultChecked />
+                                <Form.Item
+                                    name={["currencyVat", "vatIncludedInPrice"]}
+                                    valuePropName="checked"
+                                    noStyle
+                                >
+                                    <Switch />
+                                </Form.Item>
                             </div>
-                        </Form>
+                        </div>
                     </div>
 
                     <div className="settings-panel">
                         <SectionHeader
                             icon={<DatabaseOutlined />}
                             title="Backup & Export"
-                            description="Download your data as CSV or Excel files."
+                            description="Control which data can be exported."
                         />
 
                         <div className="settings-export-list">
                             {exportItems.map((item) => (
-                                <div className="settings-export-row" key={item.title}>
+                                <div
+                                    className="settings-export-row"
+                                    key={item.title}
+                                >
                                     <div>
                                         <h4>{item.title}</h4>
                                         <p>{item.desc}</p>
                                     </div>
 
                                     <Space className="settings-export-actions">
-                                        <Button icon={<DownloadOutlined />}>CSV</Button>
+                                        <Form.Item
+                                            name={item.name}
+                                            valuePropName="checked"
+                                            noStyle
+                                        >
+                                            <Switch />
+                                        </Form.Item>
                                         <Button icon={<DownloadOutlined />}>
-                                            Excel
+                                            CSV
                                         </Button>
                                     </Space>
                                 </div>
@@ -282,7 +566,7 @@ Doha, Qatar`}
                     </div>
                 </Col>
             </Row>
-        </div>
+        </Form>
     );
 };
 

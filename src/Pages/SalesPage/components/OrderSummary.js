@@ -10,6 +10,11 @@ import {
 } from "../../../Services/slices/product.slice";
 import "./OrderSummary.css";
 import Spinner from "../../../Components/Spinner/Spinner";
+import {
+    calculateVat,
+    formatMoney,
+    getCurrencyVatSettings,
+} from "../../../Utils/businessSettings";
 
 /** Digits only; length 13–19 and passes Luhn checksum (major card networks). */
 const isValidCardNumber = (digits) => {
@@ -45,6 +50,8 @@ const OrderSummary = ({
         discountInfo,
         purchaseProductLoading,
     } = useSelector((state) => state.product);
+    const { businessInfo } = useSelector((state) => state.business);
+    const currencyVat = getCurrencyVatSettings(businessInfo);
     const [paymentMethod, setPaymentMethod] = useState("cash");
     const [coupon, setCoupon] = useState("");
     const [cardInfo, setCardInfo] = useState({
@@ -145,8 +152,10 @@ const OrderSummary = ({
         0,
     );
 
-    const vat = subtotal * 0.05;
-    const totalBeforeCoupon = subtotal + vat;
+    const vat = currencyVat.vatIncludedInPrice
+        ? subtotal * (Number(currencyVat.vatRate || 0) / (100 + Number(currencyVat.vatRate || 0)))
+        : calculateVat(subtotal, businessInfo);
+    const totalBeforeCoupon = currencyVat.vatIncludedInPrice ? subtotal : subtotal + vat;
     const parsedCouponFinalPrice = Number(discountInfo?.finalPrice);
     const couponFinalPrice =
         couponValid && Number.isFinite(parsedCouponFinalPrice)
@@ -310,7 +319,7 @@ const OrderSummary = ({
                         <div className="summary-item" key={getProductId(item)}>
                             <div className="item-info">
                                 <strong>{item.name}</strong>
-                                <p>QAR {getProductPrice(item).toFixed(2)}</p>
+                                <p>{formatMoney(getProductPrice(item), businessInfo)}</p>
                             </div>
 
                             <div className="qty-box">
@@ -333,8 +342,10 @@ const OrderSummary = ({
                             </div>
 
                             <div className="item-total">
-                                QAR{" "}
-                                {(getProductPrice(item) * item.qty).toFixed(2)}
+                                {formatMoney(
+                                    getProductPrice(item) * item.qty,
+                                    businessInfo,
+                                )}
                             </div>
 
                             <button
@@ -495,24 +506,24 @@ const OrderSummary = ({
                 <div className="totals">
                     <div>
                         <span>Subtotal</span>
-                        <span>QAR {subtotal.toFixed(2)}</span>
+                        <span>{formatMoney(subtotal, businessInfo)}</span>
                     </div>
 
                     <div>
-                        <span>VAT (5%)</span>
-                        <span>QAR {vat.toFixed(2)}</span>
+                        <span>VAT ({Number(currencyVat.vatRate || 0)}%)</span>
+                        <span>{formatMoney(vat, businessInfo)}</span>
                     </div>
 
                     {couponValid && (
                         <div className="coupon-total-row">
                             <span>Coupon</span>
-                            <span>- QAR {couponDiscount.toFixed(2)}</span>
+                            <span>- {formatMoney(couponDiscount, businessInfo)}</span>
                         </div>
                     )}
                 </div>
 
                 <h2 className="summary-total-line">
-                    Total: QAR {total.toFixed(2)}
+                    Total: {formatMoney(total, businessInfo)}
                 </h2>
 
                 <button

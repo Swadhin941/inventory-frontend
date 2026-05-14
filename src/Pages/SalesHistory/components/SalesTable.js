@@ -10,12 +10,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSalesApi } from "../../../Services/slices/sales.slice";
 import "./SalesTable.css";
-
-const formatCurrency = (amount) =>
-    `QAR ${Number(amount || 0).toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    })}`;
+import { formatMoney } from "../../../Utils/businessSettings";
 
 const formatDate = (value) => {
     if (!value) return "-";
@@ -41,6 +36,7 @@ const SalesTable = () => {
     const { sales, totalCount, isSalesLoading } = useSelector(
         (state) => state.sales,
     );
+    const { businessInfo } = useSelector((state) => state.business);
     const dispatch = useDispatch();
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -170,9 +166,9 @@ const SalesTable = () => {
             align: "right",
             render: (amount, record) => (
                 <div className="sales-amount-cell">
-                    <span>{formatCurrency(amount)}</span>
+                    <span>{formatMoney(amount, businessInfo)}</span>
                     <span className="sales-trx-subtitle">
-                        VAT {formatCurrency(record.vat)}
+                        VAT {formatMoney(record.vat, businessInfo)}
                     </span>
                 </div>
             ),

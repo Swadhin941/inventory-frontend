@@ -4,12 +4,14 @@ import { Card, Col, Row, Skeleton, Statistic } from "antd";
 import Text from "antd/es/typography/Text";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSalesStatistics } from "../../../Services/slices/sales.slice";
+import { formatMoney } from "../../../Utils/businessSettings";
 
 const SalesStats = () => {
     const dispatch = useDispatch();
     const { purchaseStats, purchaseStatsLoading } = useSelector(
         (state) => state.sales,
     );
+    const { businessInfo } = useSelector((state) => state.business);
 
     useEffect(()=>{
         dispatch(fetchSalesStatistics());
@@ -29,7 +31,7 @@ const SalesStats = () => {
                     </Text>
 
                     <Statistic
-                        value={purchaseStats?.totalCashReceived + " QAR"}
+                        value={formatMoney(purchaseStats?.totalCashReceived, businessInfo)}
                         valueStyle={{
                             fontWeight: 800,
                             marginTop: 10,
@@ -53,7 +55,7 @@ const SalesStats = () => {
                     </Text>
 
                     <Statistic
-                        value={purchaseStats?.totalCardReceived + " QAR"}
+                        value={formatMoney(purchaseStats?.totalCardReceived, businessInfo)}
                         valueStyle={{
                             fontWeight: 800,
                             marginTop: 10,
@@ -77,7 +79,7 @@ const SalesStats = () => {
                     </Text>
 
                     <Statistic
-                        value={purchaseStats?.totalRefunded + " QAR"}
+                        value={formatMoney(purchaseStats?.totalRefunded, businessInfo)}
                         valueStyle={{
                             color: "#dc2626",
                             fontWeight: 800,

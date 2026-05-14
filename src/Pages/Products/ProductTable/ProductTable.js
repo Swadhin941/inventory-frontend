@@ -8,6 +8,7 @@ import {
     updateProductApi,
 } from "../../../Services/slices/product.slice";
 import { getAllBrand } from "../../../Services/slices/model.slice";
+import { formatMoney } from "../../../Utils/businessSettings";
 
 const ProductTable = ({ onEdit, search }) => {
     const dispatch = useDispatch();
@@ -15,6 +16,7 @@ const ProductTable = ({ onEdit, search }) => {
         (state) => state.product,
     );
     const { brands } = useSelector((state) => state.model);
+    const { businessInfo } = useSelector((state) => state.business);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
 
@@ -91,7 +93,9 @@ const ProductTable = ({ onEdit, search }) => {
             dataIndex: "cost",
             responsive: ["lg"],
             render: (_, record) => (
-                <span className="price">QAR {record.purchasePrice}</span>
+                <span className="price">
+                    {formatMoney(record.purchasePrice, businessInfo)}
+                </span>
             ),
         },
 
@@ -100,7 +104,9 @@ const ProductTable = ({ onEdit, search }) => {
             dataIndex: "price",
             width: 110,
             render: (_, record) => (
-                <span className="price bold">QAR {record.finalPrice}</span>
+                <span className="price bold">
+                    {formatMoney(record.finalPrice, businessInfo)}
+                </span>
             ),
         },
 

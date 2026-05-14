@@ -102,8 +102,18 @@
 
 .settings-form .ant-input,
 .settings-form .ant-input-affix-wrapper,
-.settings-form .ant-select-selector {
+.settings-form .ant-select-selector,
+.settings-form .settings-number-input {
     border-radius: 8px !important;
+}
+
+.settings-number-input {
+    width: 100%;
+}
+
+.settings-footer-message {
+    margin-top: 14px;
+    margin-bottom: 0;
 }
 
 .settings-list {

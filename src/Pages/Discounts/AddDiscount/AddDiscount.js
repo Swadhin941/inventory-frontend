@@ -15,9 +15,12 @@ import "./AddDiscount.css";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBrand } from "../../../Services/slices/model.slice";
 import { addDiscountApi, updateDiscountApi } from "../../../Services/slices/discount.slice";
+import { getCurrencyVatSettings } from "../../../Utils/businessSettings";
 
 const AddDiscount = ({ open, onClose, editingDiscount }) => {
     const { brands } = useSelector((state) => state.model);
+    const { businessInfo } = useSelector((state) => state.business);
+    const { currencySymbol } = getCurrencyVatSettings(businessInfo);
     const dispatch = useDispatch();
     const [form] = Form.useForm();
     const discountType = Form.useWatch("type", form);
@@ -147,7 +150,7 @@ const AddDiscount = ({ open, onClose, editingDiscount }) => {
                 <Form.Item
                     label={
                         discountType === "fixed_amount"
-                            ? "Discount Amount (QAR)"
+                            ? `Discount Amount (${currencySymbol})`
                             : "Discount Value (%)"
                     }
                     name="value"
