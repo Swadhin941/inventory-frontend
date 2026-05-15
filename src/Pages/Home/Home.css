@@ -1,0 +1,28 @@
+.dashboard-page {
+    padding: 24px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+
+.dashboard-card {
+    border-radius: 18px;
+    margin-bottom: 16px;
+}
+
+.dashboard-filter-card {
+    margin-bottom: 24px;
+}
+
+.dashboard-filter-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.dashboard-filter-wrapper h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+}
