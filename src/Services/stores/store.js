@@ -7,6 +7,7 @@ import productReducer from "../slices/product.slice";
 import discountReducer from "../slices/discount.slice";
 import salesReducer from "../slices/sales.slice";
 import businessReducer from "../slices/business.slice";
+import dashboardReducer from "../slices/dashboard.slice";
 
 const mainStore = configureStore({
     reducer: {
@@ -17,7 +18,8 @@ const mainStore = configureStore({
         product: productReducer,
         discount: discountReducer,
         sales: salesReducer,
-        business: businessReducer
+        business: businessReducer,
+        dashboard: dashboardReducer
     },
 });
 
