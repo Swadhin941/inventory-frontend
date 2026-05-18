@@ -15,3 +15,11 @@ export const getAllSalesStatisticsApiService = async()=>{
     const data = await response.data;
     return data;
 }
+
+export const getProductDetailsApi = async(payload)=>{
+    const response = await axiosSecure.get("/purchase/get-purchase-product-details", {
+        params: payload,
+    });
+    const data = await response.data;
+    return data;
+}

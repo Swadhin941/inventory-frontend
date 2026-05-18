@@ -32,6 +32,11 @@ import {
     defaultBusinessSettings,
     getBusinessSettings,
 } from "../../Utils/businessSettings";
+import {
+    exportPaymentRecordsApiService,
+    exportProductListApiService,
+    exportSalesHistoryApiService,
+} from "../../Services/API/business.api";
 
 const currencies = [
     {
@@ -94,16 +99,19 @@ const exportItems = [
         title: "Export Sales History",
         desc: "All transactions with customer, staff, and payment data.",
         name: ["backupExport", "enableSalesExport"],
+        exportApi: exportSalesHistoryApiService,
     },
     {
         title: "Export Product List",
         desc: "All products with pricing, stock, and brand info.",
         name: ["backupExport", "enableProductExport"],
+        exportApi: exportProductListApiService,
     },
     {
         title: "Export Payment Records",
         desc: "All payment logs with method, timestamps, and amounts.",
         name: ["backupExport", "enablePaymentExport"],
+        exportApi: exportPaymentRecordsApiService,
     },
 ];
 
@@ -202,6 +210,22 @@ const BusinessSettings = () => {
             toast.success("Business settings saved");
         } catch (_error) {
             toast.error("Could not save business settings");
+        }
+    };
+
+    const handleExport = async (item) => {
+        const enabled = form.getFieldValue(item.name);
+
+        if (!enabled) {
+            toast.error("Enable this export in settings first");
+            return;
+        }
+
+        try {
+            await item.exportApi();
+            toast.success("Export downloaded");
+        } catch (_error) {
+            toast.error("Could not export file");
         }
     };
 
@@ -528,7 +552,10 @@ const BusinessSettings = () => {
                                         >
                                             <Switch />
                                         </Form.Item>
-                                        <Button icon={<DownloadOutlined />}>
+                                        <Button
+                                            icon={<DownloadOutlined />}
+                                            onClick={() => handleExport(item)}
+                                        >
                                             CSV
                                         </Button>
                                     </Space>

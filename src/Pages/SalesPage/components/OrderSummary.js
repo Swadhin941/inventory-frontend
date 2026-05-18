@@ -15,6 +15,7 @@ import {
     formatMoney,
     getCurrencyVatSettings,
 } from "../../../Utils/businessSettings";
+import { DownloadReceipt } from "../../SalesHistory/PDF/DownloadReceipt";
 
 /** Digits only; length 13–19 and passes Luhn checksum (major card networks). */
 const isValidCardNumber = (digits) => {
@@ -51,6 +52,7 @@ const OrderSummary = ({
         purchaseProductLoading,
     } = useSelector((state) => state.product);
     const { businessInfo } = useSelector((state) => state.business);
+    const { user } = useSelector((state) => state.auth.auth);
     const currencyVat = getCurrencyVatSettings(businessInfo);
     const [paymentMethod, setPaymentMethod] = useState("cash");
     const [coupon, setCoupon] = useState("");
@@ -61,7 +63,7 @@ const OrderSummary = ({
         cvv: "",
     });
     const [saleSuccessModalOpen, setSaleSuccessModalOpen] = useState(false);
-    const [, setLastSaleReceipt] = useState(null);
+    const [lastSaleReceipt, setLastSaleReceipt] = useState(null);
 
     const getProductId = (product) => product._id || product.id;
     const getProductPrice = (product) =>
@@ -139,7 +141,12 @@ const OrderSummary = ({
 
 
     const handlePrintReceipt = () => {
-        
+        if (!lastSaleReceipt) return;
+
+        DownloadReceipt({
+            sale: lastSaleReceipt,
+            businessInfo,
+        });
     };
 
     const handleCardNumberChange = (value) => {
@@ -227,6 +234,7 @@ const OrderSummary = ({
             },
             lineItems,
             paymentMethod,
+            staffName: user?.username || "",
             couponCode: couponValid ? coupon.trim() || undefined : undefined,
             totals: {
                 subtotal,
@@ -257,13 +265,16 @@ const OrderSummary = ({
         };
 
         try {
-            await dispatch(addPurchaseProductApi(payload)).unwrap();
+            const createdSale = await dispatch(addPurchaseProductApi(payload)).unwrap();
 
             if (typeof onPlaceOrder === "function") {
                 onPlaceOrder(payload);
             }
 
-            setLastSaleReceipt(receiptSnapshot);
+            setLastSaleReceipt({
+                ...receiptSnapshot,
+                ...(createdSale?.body || {}),
+            });
             setSaleSuccessModalOpen(true);
         } catch (_error) {
             // The slice already shows the API error toast.

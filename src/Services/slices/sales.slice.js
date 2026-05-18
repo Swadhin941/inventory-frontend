@@ -1,5 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getAllSalesApiService, getAllSalesStatisticsApiService } from "../API/sales.api";
+import {
+    getAllSalesApiService,
+    getAllSalesStatisticsApiService,
+    getProductDetailsApi,
+} from "../API/sales.api";
 
 const initSalesState = {
     sales: [],
@@ -8,6 +12,8 @@ const initSalesState = {
     totalCount: 0,
     purchaseStats: null,
     purchaseStatsLoading: false,
+    productDetails: null,
+    productDetailsLoading: false,
 };
 
 export const fetchSalesApi = createAsyncThunk(
@@ -36,8 +42,21 @@ export const fetchSalesStatistics = createAsyncThunk(
             return data;
         } catch (error) {
             return rejectWithValue(error.message);
-        }   
-    })
+        }
+    },
+);
+
+export const fetchProductDetailsApiService = createAsyncThunk("fetch/sales/product-details", async (payload, { rejectWithValue }) => {
+    try {
+        const data = await getProductDetailsApi(payload);
+        if (!data.success) {
+            return rejectWithValue(data);
+        }
+        return data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+});
 
 const salesSlice = createSlice({
     name: "sales",
@@ -48,7 +67,7 @@ const salesSlice = createSlice({
             state.sales = [];
             state.isSalesLoading = true;
             state.error = null;
-            state.totalCount = 0
+            state.totalCount = 0;
         });
         builder.addCase(fetchSalesApi.fulfilled, (state, action) => {
             state.sales = action.payload.body;
@@ -76,6 +95,21 @@ const salesSlice = createSlice({
         builder.addCase(fetchSalesStatistics.rejected, (state, action) => {
             state.purchaseStats = null;
             state.purchaseStatsLoading = false;
+            state.error = action.payload;
+        });
+        builder.addCase(fetchProductDetailsApiService.pending, (state, action) => {
+            state.productDetails = null;
+            state.productDetailsLoading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchProductDetailsApiService.fulfilled, (state, action) => {
+            state.productDetails = action.payload.body;
+            state.productDetailsLoading = false;
+            state.error = null;
+        });
+        builder.addCase(fetchProductDetailsApiService.rejected, (state, action) => {
+            state.productDetails = null;
+            state.productDetailsLoading = false;
             state.error = action.payload;
         });
     },

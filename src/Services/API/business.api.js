@@ -16,3 +16,24 @@ export const updateBusinessInfoApiService = async(payload)=>{
     const data = await response.data;
     return data
 }
+
+const downloadCsv = async (path, fileName) => {
+    const response = await axiosSecure.get(path, { responseType: "blob" });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+};
+
+export const exportSalesHistoryApiService = () =>
+    downloadCsv("/business-settings/export/sales-history", "sales-history.csv");
+
+export const exportProductListApiService = () =>
+    downloadCsv("/business-settings/export/product-list", "product-list.csv");
+
+export const exportPaymentRecordsApiService = () =>
+    downloadCsv("/business-settings/export/payment-records", "payment-records.csv");
