@@ -83,7 +83,9 @@ const authSlice = createSlice({
                     state.auth.user = action.payload.body;
                     state.auth.isLoginLoading = false;
                     state.auth.error = null;
-                    localStorage.setItem("token", action.payload.token);
+                    localStorage.setItem("token", action.payload.accessToken || action.payload.token);
+                    localStorage.setItem("accessToken", action.payload.accessToken || action.payload.token);
+                    localStorage.setItem("refreshToken", action.payload.refreshToken);
                 } else {
                     toast.error(action.payload.message);
                     state.auth.isLoginLoading = false;

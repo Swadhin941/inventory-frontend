@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Input, Skeleton, Table, Tag } from "antd";
+import { Button, Drawer, Empty, Input, Skeleton, Table, Tag } from "antd";
 import {
     CreditCardOutlined,
     DollarOutlined,
@@ -8,9 +8,10 @@ import {
     ShoppingCartOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSalesApi } from "../../../Services/slices/sales.slice";
+import { fetchProductDetailsApiService, fetchSalesApi } from "../../../Services/slices/sales.slice";
 import "./SalesTable.css";
 import { formatMoney } from "../../../Utils/businessSettings";
+import { DownloadReceipt } from "../PDF/DownloadReceipt";
 
 const formatDate = (value) => {
     if (!value) return "-";
@@ -33,7 +34,7 @@ const getStatusKey = (sale) => {
 };
 
 const SalesTable = () => {
-    const { sales, totalCount, isSalesLoading } = useSelector(
+    const { sales, totalCount, isSalesLoading, productDetails, productDetailsLoading } = useSelector(
         (state) => state.sales,
     );
     const { businessInfo } = useSelector((state) => state.business);
@@ -42,6 +43,8 @@ const SalesTable = () => {
     const [limit, setLimit] = useState(10);
     const [activeFilter, setActiveFilter] = useState("all");
     const [search, setSearch] = useState("");
+    const [openDrawer, setOpenDrawer] = useState(false);
+    const [selectedSale, setSelectedSale] = useState(null);
 
     useEffect(() => {
         dispatch(fetchSalesApi({ page, limit, search }));
@@ -102,6 +105,17 @@ const SalesTable = () => {
         });
     }, [activeFilter, search, tableData]);
 
+  const handleProductDetails = async (record) => {
+      setSelectedSale(record);
+      await dispatch(
+          fetchProductDetailsApiService({
+              id: record.id,
+          }),
+      );
+
+      setOpenDrawer(true);
+  };
+
     const columns = [
         {
             title: "Transaction",
@@ -152,7 +166,7 @@ const SalesTable = () => {
             title: "Items",
             dataIndex: "totalProducts",
             render: (totalProducts, record) => (
-                <div className="sales-items-cell">
+                <div className="sales-items-cell" style={{cursor: "pointer"}} onClick={()=>handleProductDetails(record)}>
                     <span>{totalProducts || 0} products</span>
                     <span className="sales-trx-subtitle">
                         {record.totalQuantity || 0} qty
@@ -193,7 +207,10 @@ const SalesTable = () => {
                     </div>
                     <div>
                         <h3>Sales History</h3>
-                        <p>Review completed payments, customer details, and totals.</p>
+                        <p>
+                            Review completed payments, customer details, and
+                            totals.
+                        </p>
                     </div>
                 </div>
 
@@ -271,6 +288,133 @@ const SalesTable = () => {
                     scroll={{ x: "max-content" }}
                 />
             )}
+            <Drawer
+                title="Purchased Products"
+                placement="right"
+                width={500}
+                open={openDrawer}
+                onClose={() => setOpenDrawer(false)}
+            >
+                {productDetailsLoading ? (
+                    <Skeleton active />
+                ) : productDetails ? (
+                    <div className="sales-drawer-container">
+                        {/* PRODUCTS */}
+                        {productDetails.lineItems?.length ? (
+                            productDetails.lineItems.map((product) => (
+                                <div
+                                    key={product._id}
+                                    className="sales-product-card"
+                                >
+                                    <div className="sales-product-header">
+                                        <h4>{product.name}</h4>
+
+                                        <Tag color="blue">
+                                            Qty {product.qty}
+                                        </Tag>
+                                    </div>
+
+                                    <div className="sales-product-details">
+                                        <p>
+                                            <strong>Unit Price:</strong>{" "}
+                                            {formatMoney(
+                                                product.unitPrice,
+                                                businessInfo,
+                                            )}
+                                        </p>
+
+                                        <p>
+                                            <strong>Warranty:</strong>{" "}
+                                            {product.warranty
+                                                ? `Yes (${product.warrantyPeriod} Months)`
+                                                : "No"}
+                                        </p>
+
+                                        <p>
+                                            <strong>Product ID:</strong>{" "}
+                                            {product.productId}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <Empty description="No products found" />
+                        )}
+
+                        {/* TOTAL */}
+                        <div className="sales-total-section">
+                            <div>
+                                <span>Subtotal</span>
+
+                                <strong>
+                                    {formatMoney(
+                                        productDetails?.totals?.subtotal,
+                                        businessInfo,
+                                    )}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>VAT</span>
+
+                                <strong>
+                                    {formatMoney(
+                                        productDetails?.totals?.vat,
+                                        businessInfo,
+                                    )}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Total</span>
+
+                                <strong>
+                                    {formatMoney(
+                                        productDetails?.totals?.total,
+                                        businessInfo,
+                                    )}
+                                </strong>
+                            </div>
+                        </div>
+
+                        {/* BUTTON */}
+                        <Button
+                            type="primary"
+                            block
+                            size="large"
+                            className="download-receipt-btn"
+                            onClick={() =>
+                                DownloadReceipt({
+                                    sale: {
+                                        ...selectedSale,
+                                        ...productDetails,
+                                        TrxID:
+                                            productDetails?.TrxID ||
+                                            selectedSale?.trxId,
+                                        customer:
+                                            productDetails?.customer ||
+                                            selectedSale?.customer,
+                                        customerPhone:
+                                            productDetails?.customerPhone ||
+                                            selectedSale?.customerPhone,
+                                        customerEmail:
+                                            productDetails?.customerEmail ||
+                                            selectedSale?.customerEmail,
+                                        purchaseDate:
+                                            productDetails?.purchaseDate ||
+                                            selectedSale?.purchaseDate,
+                                    },
+                                    businessInfo,
+                                })
+                            }
+                        >
+                            Download Receipt
+                        </Button>
+                    </div>
+                ) : (
+                    <Empty />
+                )}
+            </Drawer>
         </div>
     );
 };
