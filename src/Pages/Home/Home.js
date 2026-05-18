@@ -12,10 +12,7 @@ import TopProductsChart from "./TopProductsChart/TopProductsChart";
 import LowStockTable from "./LowStockTable/LowStockTable";
 import RecentTransactions from "./RecentTransactions/RecentTransactions";
 const Home = () => {
-    const [dateRange, setDateRange] = useState([
-        dayjs().startOf("month"),
-        dayjs(),
-    ]);
+    const [dateRange, setDateRange] = useState([dayjs(), dayjs()]);
 
     const [dashboardData, setDashboardData] = useState({
         statistics: {},
@@ -129,29 +126,30 @@ const Home = () => {
             <StatisticsCards
                 data={dashboardData.statistics}
                 loading={loading}
+                dateRange={dateRange}
             />
 
             <Row gutter={[16, 16]}>
                 <Col xs={24} lg={16}>
-                    <SalesOverviewChart data={dashboardData.salesOverview} />
+                    <SalesOverviewChart data={dashboardData.salesOverview} dateRange={dateRange} />
                 </Col>
 
                 <Col xs={24} lg={8}>
-                    <PaymentMethodChart data={dashboardData.paymentMethods} />
+                    <PaymentMethodChart data={dashboardData.paymentMethods} dateRange={dateRange} />
                 </Col>
             </Row>
 
             <Row gutter={[16, 16]}>
                 <Col xs={24} lg={12}>
-                    <TopProductsChart data={dashboardData.topProducts} />
+                    <TopProductsChart data={dashboardData.topProducts} dateRange={dateRange} />
                 </Col>
 
                 <Col xs={24} lg={12}>
-                    <LowStockTable data={dashboardData.lowStockProducts} />
+                    <LowStockTable data={dashboardData.lowStockProducts} dateRange={dateRange} />
                 </Col>
             </Row>
 
-            <RecentTransactions data={dashboardData.recentTransactions} />
+            <RecentTransactions data={dashboardData.recentTransactions} dateRange={dateRange} />
         </div>
     );
 };
