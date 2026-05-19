@@ -1,65 +1,172 @@
 import React, { useEffect } from "react";
-import { Card, Col, Row, Skeleton, Statistic } from "antd";
+
+import { Card, Col, Row, Skeleton } from "antd";
+
+import {
+    ShopOutlined,
+    ShoppingCartOutlined,
+    UndoOutlined,
+    RiseOutlined,
+} from "@ant-design/icons";
+
 import { useDispatch, useSelector } from "react-redux";
-import { getDashboardStatistics } from "../../../Services/API/dashboard.api";
+
 import { getDashboardStatisticsApiService } from "../../../Services/slices/dashboard.slice";
 
-const StatisticsCards = ({ data, dateRange }) => {
+const StatisticsCards = ({ dateRange }) => {
     const dispatch = useDispatch();
+
     const { statistics, isStatisticsLoading } = useSelector(
         (state) => state.dashboard,
     );
+
     useEffect(() => {
-        console.log(dateRange, "date range");
         if (dateRange) {
-            const startDate = dateRange[0].format("YYYY-MM-DD");
-            const endDate = dateRange[1].format("YYYY-MM-DD");
-            dispatch(getDashboardStatisticsApiService({ startDate, endDate }));
+            dispatch(
+                getDashboardStatisticsApiService({
+                    startDate: dateRange[0].format("YYYY-MM-DD"),
+
+                    endDate: dateRange[1].format("YYYY-MM-DD"),
+                }),
+            );
         }
-    }, [dateRange, dispatch]);
+    }, [dispatch, dateRange]);
 
-    useEffect(() => {
-        console.log(statistics, "stats data");
-    }, [statistics]);
-    return (isStatisticsLoading || !statistics) ? (
-        <Skeleton active />
-    ) : (
+    const cards = [
+        {
+            title: "Total Sales",
+
+            value: statistics?.totalSales || 0,
+
+            prefix: "QAR",
+
+            icon: <ShopOutlined />,
+
+            bg: "#E8F5EC",
+
+            color: "#167C3D",
+        },
+
+        {
+            title: "Orders",
+
+            value: statistics?.totalOrders || 0,
+
+            icon: <ShoppingCartOutlined />,
+
+            bg: "#E8F0FF",
+
+            color: "#2563EB",
+        },
+
+        {
+            title: "Refunds",
+
+            value: statistics?.totalRefunds || 0,
+
+            prefix: "QAR",
+
+            icon: <UndoOutlined />,
+
+            bg: "#FCEAEA",
+
+            color: "#DC2626",
+        },
+
+        {
+            title: "Profit",
+
+            value: statistics?.totalProfit || 0,
+
+            prefix: "QAR",
+
+            icon: <RiseOutlined />,
+
+            bg: "#F3E8FF",
+
+            color: "#7C3AED",
+        },
+    ];
+
+    if (isStatisticsLoading) {
+        return <Skeleton active />;
+    }
+
+    return (
         <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} lg={6}>
-                <Card className="dashboard-card">
-                    <Statistic
-                        title="Total Sales"
-                        value={statistics?.totalSales}
-                        prefix="QAR"
-                    />
-                </Card>
-            </Col>
+            {cards.map((card, index) => (
+                <Col key={index} xs={24} sm={12} lg={6}>
+                    <Card
+                        bordered={false}
+                        style={{
+                            borderRadius: 20,
 
-            <Col xs={24} sm={12} lg={6}>
-                <Card className="dashboard-card">
-                    <Statistic title="Orders" value={statistics?.totalOrders} />
-                </Card>
-            </Col>
+                            height: 210,
 
-            <Col xs={24} sm={12} lg={6}>
-                <Card className="dashboard-card">
-                    <Statistic
-                        title="Refunds"
-                        value={statistics?.totalRefunds}
-                        prefix="QAR"
-                    />
-                </Card>
-            </Col>
+                            boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+                        }}
+                    >
+                        {/* ICON */}
 
-            <Col xs={24} sm={12} lg={6}>
-                <Card className="dashboard-card">
-                    <Statistic
-                        title="Profit"
-                        value={statistics?.totalProfit}
-                        prefix="QAR"
-                    />
-                </Card>
-            </Col>
+                        <div
+                            style={{
+                                width: 58,
+
+                                height: 58,
+
+                                borderRadius: 16,
+
+                                background: card.bg,
+
+                                display: "flex",
+
+                                alignItems: "center",
+
+                                justifyContent: "center",
+
+                                color: card.color,
+
+                                fontSize: 24,
+
+                                marginBottom: 28,
+                            }}
+                        >
+                            {card.icon}
+                        </div>
+
+                        {/* TITLE */}
+
+                        <div
+                            style={{
+                                color: "#64748B",
+
+                                fontSize: 16,
+
+                                fontWeight: 500,
+
+                                marginBottom: 14,
+                            }}
+                        >
+                            {card.title}
+                        </div>
+
+                        {/* VALUE */}
+
+                        <div
+                            style={{
+                                fontSize: "26px",
+                                fontWeight: 800,
+                                lineHeight: 1.1,
+                                color: "#0F172A",
+                            }}
+                        >
+                            {card.prefix
+                                ? `${card.prefix} ${card.value.toLocaleString()}`
+                                : card.value.toLocaleString()}
+                        </div>
+                    </Card>
+                </Col>
+            ))}
         </Row>
     );
 };
