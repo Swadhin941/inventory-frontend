@@ -4,71 +4,94 @@ import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
-    PointElement,
-    LineElement,
+    BarElement,
     Tooltip,
     Legend,
 } from "chart.js";
 
-import { Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
+
 import { Card, Empty, Skeleton } from "antd";
+
 import { useDispatch, useSelector } from "react-redux";
-import { getSalesOverviewApiService } from "../../../Services/slices/dashboard.slice";
+
 import dayjs from "dayjs";
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Tooltip,
-    Legend,
-);
+import { getSalesOverviewApiService } from "../../../Services/slices/dashboard.slice";
 
-const SalesOverviewChart = ({ data, dateRange }) => {
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+
+const SalesOverviewChart = () => {
     const dispatch = useDispatch();
+
     const { salesOverview, isSalesOverviewLoader } = useSelector(
         (state) => state.dashboard,
     );
 
     useEffect(() => {
-        if (dateRange) {
-            dispatch(
-                getSalesOverviewApiService({
-                    startDate: dateRange[0].format("YYYY-MM-DD"),
-                    endDate: dateRange[1].format("YYYY-MM-DD"),
-                }),
-            );
-        }
-    }, [dispatch, dateRange]);
+        const endDate = dayjs();
 
-    useEffect(() => {
-        console.log(salesOverview, isSalesOverviewLoader);
-    }, [salesOverview, isSalesOverviewLoader]);
+        const startDate = dayjs().subtract(6, "day");
+
+        dispatch(
+            getSalesOverviewApiService({
+                startDate: startDate.format("YYYY-MM-DD"),
+
+                endDate: endDate.format("YYYY-MM-DD"),
+            }),
+        );
+    }, [dispatch]);
+
     const chartData = {
-        labels: salesOverview.map((item) =>
-        dayjs(item.label).format("DD MMM YYYY")),
+        labels: salesOverview.map((item) => dayjs(item.label).format("DD MMM")),
 
         datasets: [
             {
                 label: "Sales (QAR)",
+
                 data: salesOverview.map((item) => item.totalSales),
-                borderColor: "#1677ff",
-                backgroundColor: "rgba(22,119,255,0.2)",
-                tension: 0.4,
-                fill: true,
+
+                backgroundColor: "#1677ff",
+
+                borderRadius: 8,
+
+                barThickness: 40,
             },
         ],
     };
 
+    const options = {
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        plugins: {
+            legend: {
+                display: true,
+            },
+        },
+
+        scales: {
+            y: {
+                beginAtZero: true,
+            },
+        },
+    };
+
     return (
         <Card className="dashboard-card">
-            <h3>Sales Overview</h3>
+            <h3>Sales Overview (Last 7 Days)</h3>
 
             {isSalesOverviewLoader ? (
                 <Skeleton active />
             ) : salesOverview.length > 0 ? (
-                <Line data={chartData} />
+                <div
+                    style={{
+                        height: "350px",
+                    }}
+                >
+                    <Bar data={chartData} options={options} />
+                </div>
             ) : (
                 <Empty description="No Sales Data Found" />
             )}
