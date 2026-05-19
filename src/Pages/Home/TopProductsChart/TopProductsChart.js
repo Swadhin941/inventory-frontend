@@ -1,24 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Tooltip,
-    Legend,
-} from "chart.js";
+import { Card, Empty, Progress, Select, Skeleton } from "antd";
 
-import { Bar } from "react-chartjs-2";
-import { Card, Empty, Select, Skeleton } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+
 import { getTopProductListApiService } from "../../../Services/slices/dashboard.slice";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
-
-const TopProductsChart = ({ data = [], dateRange }) => {
+const TopProductsChart = ({ dateRange }) => {
     const [limit, setLimit] = useState(5);
+
     const dispatch = useDispatch();
+
     const { topProductList, isTopProductListLoader } = useSelector(
         (state) => state.dashboard,
     );
@@ -28,30 +20,26 @@ const TopProductsChart = ({ data = [], dateRange }) => {
             dispatch(
                 getTopProductListApiService({
                     startDate: dateRange[0].format("YYYY-MM-DD"),
+
                     endDate: dateRange[1].format("YYYY-MM-DD"),
-                    limit: limit,
+
+                    limit,
                 }),
             );
         }
     }, [dateRange, dispatch, limit]);
 
-    useEffect(() => {
-        console.log(topProductList, isTopProductListLoader);
-    }, [topProductList, isTopProductListLoader]);
+    const rankedProducts = useMemo(() => {
+        const sorted = [...topProductList].sort((a, b) => b.sold - a.sold);
 
-    const chartData = {
-        labels: topProductList.map((item) => item.name),
+        const highest = sorted[0]?.sold || 1;
 
-        datasets: [
-            {
-                label: "Units Sold",
+        return sorted.map((item) => ({
+            ...item,
 
-                data: topProductList.map((item) => item.sold),
-
-                backgroundColor: "#722ed1",
-            },
-        ],
-    };
+            progress: (item.sold / highest) * 100,
+        }));
+    }, [topProductList]);
 
     return (
         <Card className="dashboard-card">
@@ -60,15 +48,23 @@ const TopProductsChart = ({ data = [], dateRange }) => {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    marginBottom: 16,
+                    marginBottom: 24,
                 }}
             >
-                <h3 style={{ margin: 0 }}>Top Products</h3>
+                <h3
+                    style={{
+                        margin: 0,
+                    }}
+                >
+                    Top Products
+                </h3>
 
                 <Select
                     value={limit}
                     onChange={setLimit}
-                    style={{ width: 120 }}
+                    style={{
+                        width: 120,
+                    }}
                     options={[
                         {
                             label: "Top 5",
@@ -92,12 +88,68 @@ const TopProductsChart = ({ data = [], dateRange }) => {
                     ]}
                 />
             </div>
+
             {isTopProductListLoader ? (
                 <Skeleton active />
-            ) : topProductList.length === 0 ? (
+            ) : rankedProducts.length === 0 ? (
                 <Empty description="No data found" />
             ) : (
-                <Bar data={chartData} />
+                <div>
+                    {rankedProducts.map((product, index) => (
+                        <div
+                            key={product._id}
+                            style={{
+                                marginBottom: 20,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: "flex",
+
+                                    justifyContent: "space-between",
+
+                                    marginBottom: 6,
+
+                                    gap: 12,
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        fontWeight: 600,
+
+                                        overflow: "hidden",
+
+                                        textOverflow: "ellipsis",
+
+                                        whiteSpace: "nowrap",
+
+                                        maxWidth: "70%",
+                                    }}
+                                >
+                                    {index + 1}. {product.name}
+                                </div>
+
+                                <div
+                                    style={{
+                                        fontWeight: 500,
+
+                                        color: "#666",
+                                    }}
+                                >
+                                    {product.sold} sold
+                                </div>
+                            </div>
+
+                            <Progress
+                                percent={Math.round(product.progress)}
+                                showInfo={false}
+                                strokeColor={
+                                    index === 0 ? "#1677ff" : "#722ED1"
+                                }
+                            />
+                        </div>
+                    ))}
+                </div>
             )}
         </Card>
     );
