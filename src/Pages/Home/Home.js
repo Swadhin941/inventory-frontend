@@ -43,7 +43,7 @@ const Home = () => {
                 dateRange={dateRange}
             />
 
-            <Row gutter={[16, 16]}>
+            <Row gutter={[16, 16]} className="mt-4">
                 <Col xs={24} lg={16}>
                     <SalesOverviewChart data={dashboardData.salesOverview} />
                 </Col>
